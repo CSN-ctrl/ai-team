@@ -1,0 +1,10 @@
+.env
+.env.example
+.gitignore
+.pytest_cache/
+tests/
+__pycache__/
+*.py[cod]
+*.egg-info/
+openclaw_pipe.py
+OPENWEBUI_SETUP.md

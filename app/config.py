@@ -8,7 +8,10 @@ class Config:
     nvidia_api_key: str = os.getenv("NVIDIA_API_KEY", "")
     openclaw_host: str = os.getenv("OPENCLAW_HOST", "0.0.0.0")
     openclaw_port: int = int(os.getenv("OPENCLAW_PORT", "8765"))
-    openclaw_db_path: str = os.getenv("OPENCLAW_DB_PATH", "~/.openclaw/kanban.db")
+    openclaw_db_path: str = os.getenv(
+        "OPENCLAW_DB_PATH",
+        "/tmp/kanban.db" if os.getenv("VERCEL") else "~/.openclaw/kanban.db",
+    )
     openhands_url: str = os.getenv("OPENHANDS_URL", "http://localhost:8000")
     openhands_api_key: str = os.getenv("OPENHANDS_API_KEY", "")
     openhands_sandbox_dir: str = os.getenv("OPENHANDS_SANDBOX_DIR", "~/.openclaw/sandboxes/")
