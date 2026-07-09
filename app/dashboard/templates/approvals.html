@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% set active_page = "approvals" %}
+
+{% block title %}Approvals — OpenClaw CEO{% endblock %}
+{% block page_title %}Approval Center{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <p>Review and resolve pending approval requests</p>
+</div>
+
+{# ── Filters ───────────────────────────────────────── #}
+<div class="approval-filters">
+  <a href="{{ url_for('dashboard_approvals') }}"
+     class="filter-btn {% if filter_status == None %}active{% endif %}">All</a>
+  <a href="{{ url_for('dashboard_approvals') }}?status=pending"
+     class="filter-btn {% if filter_status == 'pending' %}active{% endif %}">Pending</a>
+  <a href="{{ url_for('dashboard_approvals') }}?status=approved"
+     class="filter-btn {% if filter_status == 'approved' %}active{% endif %}">Approved</a>
+  <a href="{{ url_for('dashboard_approvals') }}?status=rejected"
+     class="filter-btn {% if filter_status == 'rejected' %}active{% endif %}">Rejected</a>
+</div>
+
+{# ── Approval List ─────────────────────────────────── #}
+<div class="approval-list">
+  {% if approvals %}
+    {% for approval in approvals %}
+    <div class="approval-card">
+      <div class="approval-header">
+        <div>
+          <div class="approval-summary">{{ approval.summary }}</div>
+          <div class="approval-meta">
+            <span>Task: {{ approval.task_id }}</span>
+            <span>By: {{ approval.requested_by }}</span>
+            <span>
+              <span class="badge badge-status-{{ approval.status }}">
+                {{ approval.status }}
+              </span>
+            </span>
+            {% if approval.created_at %}
+            <span>{{ approval.created_at }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {% if approval.qa_report or approval.security_report %}
+      <div class="approval-reports">
+        {% if approval.qa_report %}
+        <div class="approval-report">
+          <div class="approval-report-title">QA Report</div>
+          <div class="approval-report-content">{{ approval.qa_report }}</div>
+        </div>
+        {% endif %}
+        {% if approval.security_report %}
+        <div class="approval-report">
+          <div class="approval-report-title">Security Report</div>
+          <div class="approval-report-content">{{ approval.security_report }}</div>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% if approval.final_review %}
+      <div style="margin-bottom: 12px;">
+        <div class="approval-report" style="background: var(--bg-tertiary); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px;">
+          <div class="approval-report-title">Final Review</div>
+          <div class="approval-report-content">{{ approval.final_review }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if approval.status == 'pending' %}
+      <div class="approval-actions">
+        <form method="POST" action="{{ url_for('dashboard_approve', approval_id=approval.id) }}">
+          <button type="submit" class="btn btn-primary btn-sm">✅ Approve</button>
+        </form>
+        <form method="POST" action="{{ url_for('dashboard_reject', approval_id=approval.id) }}" style="display: flex; gap: 8px; align-items: center;">
+          <input type="text" name="comment" placeholder="Reason (optional)"
+                 style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 5px 10px; font-size: 12px; color: var(--text-primary); width: 200px;">
+          <button type="submit" class="btn btn-danger btn-sm">❌ Reject</button>
+        </form>
+      </div>
+      {% elif approval.resolution_comment %}
+      <div class="approval-actions" style="border-top: 1px solid var(--border-subtle); padding-top: 12px;">
+        <span style="font-size: 12px; color: var(--text-muted);">
+          Comment: {{ approval.resolution_comment }}
+        </span>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">✅</div>
+    <div class="empty-state-text">
+      {% if filter_status == 'pending' %}
+        No pending approvals
+      {% else %}
+        No approval requests found
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% set active_page = "kanban" %}
+
+{% block title %}Kanban Board — OpenClaw CEO{% endblock %}
+{% block page_title %}Kanban Board{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <p>Tasks grouped by status across the delivery pipeline</p>
+</div>
+
+<div class="kanban-board">
+  {% set columns = [
+    ('backlog', 'Backlog'),
+    ('ready', 'Ready'),
+    ('in_progress', 'In Progress'),
+    ('review', 'Review'),
+    ('qa', 'QA'),
+    ('security', 'Security'),
+    ('approval', 'Approval'),
+    ('done', 'Done'),
+  ] %}
+
+  {% for col_key, col_label in columns %}
+  <div class="kanban-column">
+    <div class="kanban-column-header">
+      <span class="kanban-column-title">{{ col_label }}</span>
+      <span class="kanban-column-count">{{ tasks_by_column[col_key]|length }}</span>
+    </div>
+    <div class="kanban-tasks">
+      {% for task in tasks_by_column[col_key] %}
+      <div class="kanban-task">
+        <div class="kanban-task-title" title="{{ task.title }}">{{ task.title }}</div>
+        <div class="kanban-task-meta">
+          <span class="badge badge-priority-{{ task.priority }}">P{{ task.priority }}</span>
+          {% if task.assignee %}
+          <span class="kanban-task-assignee">👤 {{ task.assignee }}</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+      {% if not tasks_by_column[col_key] %}
+      <div style="text-align: center; padding: 24px 8px; color: var(--text-muted); font-size: 12px;">
+        No tasks
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

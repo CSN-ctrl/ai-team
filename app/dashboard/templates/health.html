@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% set active_page = "health" %}
+
+{% block title %}System Health — OpenClaw CEO{% endblock %}
+{% block page_title %}System Health{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <p>Server status, model health, and API reference</p>
+</div>
+
+<div class="health-grid">
+  {# ── Server Status ────────────────────────────────── #}
+  <div class="card health-card-full">
+    <div class="card-header">
+      <span class="card-title">Server Status</span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;">
+      <div class="health-stat">
+        <span class="health-stat-label">Status</span>
+        <span class="health-stat-value">
+          <span class="health-status">
+            <span class="health-dot {% if health.status == 'ok' %}ok{% else %}degraded{% endif %}"></span>
+            {{ health.status|upper }}
+          </span>
+        </span>
+      </div>
+      <div class="health-stat">
+        <span class="health-stat-label">Version</span>
+        <span class="health-stat-value">{{ health.version }}</span>
+      </div>
+      <div class="health-stat">
+        <span class="health-stat-label">Uptime</span>
+        <span class="health-stat-value">{{ health.uptime }}</span>
+      </div>
+      <div class="health-stat">
+        <span class="health-stat-label">Hostname</span>
+        <span class="health-stat-value">{{ health.hostname }}</span>
+      </div>
+    </div>
+  </div>
+
+  {# ── Model Health ─────────────────────────────────── #}
+  <div class="card health-card-full">
+    <div class="card-header">
+      <span class="card-title">Model Health</span>
+    </div>
+    <table class="model-health-table">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Status</th>
+          <th>Healthy</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if health.models %}
+          {% for model in health.models %}
+          <tr>
+            <td>{{ model.model }}</td>
+            <td>
+              <span class="health-status">
+                <span class="health-dot {% if model.healthy %}ok{% else %}error{% endif %}"></span>
+                {% if model.healthy %}Available{% else %}Degraded{% endif %}
+              </span>
+            </td>
+            <td>
+              <span class="badge {% if model.healthy %}badge-status-done{% else %}badge-status-security{% endif %}">
+                {{ model.healthy|string }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 24px;">
+              No model health data available
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  {# ── API Endpoints ────────────────────────────────── #}
+  <div class="card health-card-full">
+    <div class="card-header">
+      <span class="card-title">API Endpoints</span>
+    </div>
+    <div class="endpoint-list">
+      <div class="endpoint-item">
+        <span class="endpoint-method" style="color: var(--accent-green);">GET</span>
+        <span class="endpoint-path">/v1/health</span>
+        <span class="endpoint-desc">System health check</span>
+      </div>
+      <div class="endpoint-item">
+        <span class="endpoint-method" style="color: var(--accent-blue);">GET</span>
+        <span class="endpoint-path">/v1/goals</span>
+        <span class="endpoint-desc">List all goals</span>
+      </div>
+      <div class="endpoint-item">
+        <span class="endpoint-method" style="color: var(--accent-green);">POST</span>
+        <span class="endpoint-path">/v1/goals</span>
+        <span class="endpoint-desc">Create a new goal</span>
+      </div>
+      <div class="endpoint-item">
+        <span class="endpoint-method" style="color: var(--accent-blue);">GET</span>
+        <span class="endpoint-path">/v1/tasks</span>
+        <span class="endpoint-desc">List tasks</span>
+      </div>
+      <div class="endpoint-item">
+        <span class="endpoint-method" style="color: var(--accent-orange);">PATCH</span>
+        <span class="endpoint-path">/v1/tasks/{id}</span>
+        <span class="endpoint-desc">Update task</span>
+      </div>
+      <div class="endpoint-item">
+        <span class="endpoint-method" style="color: var(--accent-blue);">GET</span>
+        <span class="endpoint-path">/v1/agents</span>
+        <span class="endpoint-desc">List agents</span>
+      </div>
+      <div class="endpoint-item">
+        <span class="endpoint-method" style="color: var(--accent-blue);">GET</span>
+        <span class="endpoint-path">/v1/approvals</span>
+        <span class="endpoint-desc">List approvals</span>
+      </div>
+      <div class="endpoint-item">
+        <span class="endpoint-method" style="color: var(--accent-green);">POST</span>
+        <span class="endpoint-path">/v1/approvals/{id}/approve</span>
+        <span class="endpoint-desc">Approve request</span>
+      </div>
+      <div class="endpoint-item">
+        <span class="endpoint-method" style="color: var(--accent-red);">POST</span>
+        <span class="endpoint-path">/v1/approvals/{id}/reject</span>
+        <span class="endpoint-desc">Reject request</span>
+      </div>
+      <div class="endpoint-item">
+        <span class="endpoint-method" style="color: var(--accent-blue);">GET</span>
+        <span class="endpoint-path">/v1/releases</span>
+        <span class="endpoint-desc">List releases</span>
+      </div>
+      <div class="endpoint-item">
+        <span class="endpoint-method" style="color: var(--accent-green);">POST</span>
+        <span class="endpoint-path">/v1/chat/completions</span>
+        <span class="endpoint-desc">Chat completion</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% set active_page = "index" %}
+
+{% block title %}Dashboard — OpenClaw CEO{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <p>Overview of all active goals, tasks, agents, and system status</p>
+</div>
+
+{# ── Stats Cards ───────────────────────────────────── #}
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon blue">🎯</div>
+    <div class="stat-label">Total Goals</div>
+    <div class="stat-value">{{ stats.total_goals }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon yellow">📋</div>
+    <div class="stat-label">Active Tasks</div>
+    <div class="stat-value">{{ stats.active_tasks }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon purple">⏳</div>
+    <div class="stat-label">Pending Approvals</div>
+    <div class="stat-value">{{ stats.pending_approvals }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green">🤖</div>
+    <div class="stat-label">Agents Online</div>
+    <div class="stat-value">{{ stats.agents_online }}</div>
+  </div>
+</div>
+
+{# ── Main Content Grid ─────────────────────────────── #}
+<div class="two-col-grid">
+  {# Left: Activity Feed #}
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Recent Activity</span>
+    </div>
+    <div class="activity-feed">
+      {% if activities %}
+        {% for activity in activities %}
+        <div class="activity-item">
+          <span class="activity-dot {{ activity.type }}"></span>
+          <span class="activity-text">{{ activity.message|safe }}</span>
+          <span class="activity-time">{{ activity.time }}</span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-state-icon">📭</div>
+          <div class="empty-state-text">No recent activity</div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Right: Quick Actions + Status #}
+  <div style="display: flex; flex-direction: column; gap: 16px;">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Quick Actions</span>
+      </div>
+      <div class="quick-actions">
+        <a href="{{ url_for('dashboard_kanban') }}" class="btn">📋 View Board</a>
+        <a href="{{ url_for('dashboard_approvals') }}" class="btn">⏳ Approvals</a>
+        <a href="{{ url_for('dashboard_agents') }}" class="btn">🤖 Agents</a>
+        <a href="{{ url_for('dashboard_releases') }}" class="btn">📦 Releases</a>
+        <a href="{{ url_for('dashboard_health') }}" class="btn">❤️ Health</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Task Distribution</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        {% for status, count in task_distribution %}
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px;">
+          <span style="color: var(--text-secondary);">{% if status == 'in_progress' %}In Progress{% else %}{{ status|capitalize }}{% endif %}</span>
+          <span class="badge badge-status-{{ status }}">{{ count }}</span>
+        </div>
+        {% endfor %}
+        {% if not task_distribution %}
+        <div style="text-align: center; padding: 16px; color: var(--text-muted); font-size: 13px;">
+          No tasks yet
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

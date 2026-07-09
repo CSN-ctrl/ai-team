@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% set active_page = "releases" %}
+
+{% block title %}Releases — OpenClaw CEO{% endblock %}
+{% block page_title %}Releases{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <p>Release pipeline and gate progression (G0–G9)</p>
+</div>
+
+{# ── Gate Pipeline Reference ───────────────────────── #}
+<div class="card" style="margin-bottom: 24px;">
+  <div class="card-header">
+    <span class="card-title">Release Gate Pipeline</span>
+  </div>
+  <div class="gate-pipeline">
+    {% set gates = ['G0', 'G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7', 'G8', 'G9'] %}
+    {% for gate in gates %}
+    <div class="gate-node">
+      <div class="gate-circle {% if loop.index <= 3 %}completed{% elif loop.index == 4 %}active{% endif %}">
+        {% if loop.index <= 3 %}✓{% else %}{{ loop.index0 }}{% endif %}
+      </div>
+      <span class="gate-label">{{ gate }}</span>
+    </div>
+    {% if not loop.last %}
+    <div class="gate-connector {% if loop.index <= 3 %}completed{% endif %}"></div>
+    {% endif %}
+    {% endfor %}
+  </div>
+  <div style="display: flex; gap: 20px; font-size: 12px; color: var(--text-muted); padding: 8px 0 0;">
+    <span><span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-green); vertical-align: middle; margin-right: 4px;"></span> Completed</span>
+    <span><span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-blue); vertical-align: middle; margin-right: 4px;"></span> Active</span>
+    <span><span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--bg-tertiary); border: 2px solid var(--border-color); vertical-align: middle; margin-right: 4px;"></span> Pending</span>
+  </div>
+</div>
+
+{# ── Release List ──────────────────────────────────── #}
+<div class="release-list">
+  {% if releases %}
+    {% for release in releases %}
+    <div class="release-card">
+      <div class="release-header">
+        <div>
+          <span class="release-id">Release {{ release.id }}</span>
+          <span class="badge badge-status-{{ release.status }}" style="margin-left: 8px;">{{ release.status }}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="badge badge-status-{% if release.gate in ['G0','G1','G2'] %}backlog{% elif release.gate in ['G3','G4','G5'] %}in_progress{% else %}done{% endif %}">
+            {{ release.gate }}
+          </span>
+          {% if release.completed_at %}
+          <span style="font-size: 11px; color: var(--text-muted);">Completed: {{ release.completed_at }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if release.artifacts and release.artifacts.items() %}
+      <div class="release-artifacts">
+        {% for key, value in release.artifacts.items() %}
+        <div class="artifact-item">
+          <div class="artifact-key">{{ key }}</div>
+          <div class="artifact-value">{{ value }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div style="margin-top: 12px; font-size: 12px; color: var(--text-muted);">
+        Goal: {{ release.goal_id }}
+        {% if release.created_at %}
+        · Created: {{ release.created_at }}
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">📦</div>
+    <div class="empty-state-text">No releases yet</div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
