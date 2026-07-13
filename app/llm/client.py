@@ -94,6 +94,8 @@ class NIMClient:
         temperature: float = _DEFAULT_TEMPERATURE,
         max_tokens: int = _DEFAULT_MAX_TOKENS,
         stream: bool = False,
+        tools: Optional[list[dict]] = None,
+        tool_choice: Optional[Any] = None,
     ) -> dict:
         """Send a chat completion request.
 
@@ -132,6 +134,10 @@ class NIMClient:
             "max_tokens": max_tokens,
             "stream": stream,
         }
+        if tools is not None:
+            payload["tools"] = tools
+        if tool_choice is not None:
+            payload["tool_choice"] = tool_choice
 
         try:
             response = await self._client.post(
@@ -183,6 +189,8 @@ class NIMClient:
         messages: list[dict],
         temperature: float = _DEFAULT_TEMPERATURE,
         max_tokens: int = _DEFAULT_MAX_TOKENS,
+        tools: Optional[list[dict]] = None,
+        tool_choice: Optional[Any] = None,
     ) -> AsyncGenerator[str, None]:
         """Stream chat completion deltas via SSE.
 
@@ -197,6 +205,10 @@ class NIMClient:
             "max_tokens": max_tokens,
             "stream": True,
         }
+        if tools is not None:
+            payload["tools"] = tools
+        if tool_choice is not None:
+            payload["tool_choice"] = tool_choice
 
         try:
             async with self._client.stream(
