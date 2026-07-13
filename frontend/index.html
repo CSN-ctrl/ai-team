@@ -1,0 +1,1522 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>AI Team</title><meta name="description" content="AI Team - Orchestrated Development"/><link rel="icon" type="image/jpeg" href="/logo.jpg"/><link rel="apple-touch-icon" href="/logo.jpg"/><link rel="modulepreload" href="/assets/manifest-6ff52bb0.js"/><link rel="modulepreload" href="/assets/entry.client-Dzk2o8LE.js"/><link rel="modulepreload" href="/assets/chunk-6CSD65Y2-BdQTlvlT.js"/><link rel="modulepreload" href="/assets/index-Dq7e4I6G.js"/><link rel="modulepreload" href="/assets/custom-toast-handlers-DMAqE1Pl.js"/><link rel="modulepreload" href="/assets/open-hands-axios-DU5YpPGJ.js"/><link rel="modulepreload" href="/assets/query-client-config-VYoF5ZZC.js"/><link rel="modulepreload" href="/assets/index-Bd-hHDXA.js"/><link rel="modulepreload" href="/assets/query-keys-CRB4E3N4.js"/><link rel="modulepreload" href="/assets/index-DI_sHDeM.js"/><link rel="modulepreload" href="/assets/preload-helper-BXl3LOEh.js"/><link rel="modulepreload" href="/assets/declaration-uKRp084C.js"/><link rel="modulepreload" href="/assets/retrieve-axios-error-message-CxZsjm0f.js"/><link rel="modulepreload" href="/assets/rate-limit-retry-C2LRUdYK.js"/><link rel="modulepreload" href="/assets/infiniteQueryBehavior-BHqRnDvN.js"/><link rel="modulepreload" href="/assets/root-BOh9UxHp.js"/><link rel="modulepreload" href="/assets/use-invitation-CZEm3kdS.js"/><link rel="stylesheet" href="/assets/root-C_IAtnsT.css"/>
+<style>
+/* ── Background image behind the app ── */
+html {
+  background: transparent !important;
+}
+body {
+  background: transparent !important;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Background image on the body behind everything */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: url('/bg.jpg') center/cover no-repeat fixed;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* Force all root-level containers to be transparent so bg shows through */
+html > body,
+body > #root,
+body > div:not([data-rht-toaster]):not([id^="modal"]):not([id^="headlessui"]):not(.firebase-ui-container) {
+  background: transparent !important;
+}
+#root > div:first-child {
+  background: transparent !important;
+}
+[data-testid="root-layout"] {
+  background: transparent !important;
+}
+/* The main content wrapper panel */
+[data-testid="root-layout"] > div:last-child {
+  background: rgba(5, 0, 15, 0.55) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* ── Force logo replacement ── */
+/* Hide the original SVG logo in the sidebar */
+a[aria-label*="ogo"] svg {
+  display: none !important;
+}
+/* Show the logo image in its place */
+a[aria-label*="ogo"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+a[aria-label*="ogo"]::before {
+  content: '' !important;
+  display: block !important;
+  width: 56px !important;
+  height: 56px !important;
+  background: url('/logo.jpg') center/contain no-repeat !important;
+  border-radius: 4px !important;
+  margin-top: -8px !important;
+}
+
+/* Sidebar: semi-transparent dark bg so bg image shows through */
+aside[aria-label*="Sidebar"],
+aside[aria-label*="Navigation"] {
+  background: rgba(10, 0, 20, 0.75) !important;
+  backdrop-filter: blur(12px);
+}
+
+/* Main content area: semi-transparent dark */
+main, [data-testid="root-layout"] > div:last-child {
+  background: rgba(5, 0, 15, 0.55) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* ── Hide scrollbar ── */
+html {
+  overflow-y: hidden !important;
+}
+body::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* ── Purple accent color scheme (matching logo) ── */
+:root {
+  --accent: #8020d0;
+  --accent-light: #a060e8;
+  --accent-dark: #500080;
+  --accent-glow: rgba(128, 32, 208, 0.3);
+}
+
+/* Accent text */
+a, button, [class*="text-primary"], [class*="text-accent"] {
+  color: var(--accent-light) !important;
+}
+
+/* Hover states with purple glow */
+*:hover {
+  transition: all 0.15s ease;
+}
+
+/* Primary buttons */
+[class*="bg-primary"], [class*="bg-accent"], 
+button[class*="primary"], [class*="variant-primary"],
+[data-variant="primary"] {
+  background: var(--accent) !important;
+  border-color: var(--accent-light) !important;
+}
+
+/* Brand button (the "Save" / CTA button) */
+[class*="brand-button"], [data-testid*="brand"] button,
+button:has(svg):hover {
+  background: var(--accent) !important;
+}
+
+/* Selected / active nav items */
+[class*="bg-white/10"], [class*="hover:bg-white/10"]:hover {
+  background: rgba(128, 32, 208, 0.2) !important;
+}
+
+/* Input focus rings */
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent-glow) !important;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar-thumb {
+  background: var(--accent-dark) !important;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.3) !important;
+}
+
+/* Selection color */
+::selection {
+  background: var(--accent) !important;
+  color: white !important;
+}
+
+/* ── Task Dashboard Panel (right sidebar) ── */
+:root {
+  --dash-bg: #0d0d1a;
+  --dash-bg2: #1a1a2e;
+  --dash-bg3: #252540;
+  --dash-border: rgba(128, 32, 208, 0.25);
+  --dash-primary: #8020d0;
+  --dash-primary-light: #b060f0;
+  --dash-primary-dark: #500090;
+  --dash-text: #e0d8f0;
+  --dash-text-dim: #9080a8;
+  --dash-text-bright: #ffffff;
+  --dash-radius: 8px;
+  --dash-radius-sm: 4px;
+  --dash-width: 340px;
+}
+
+/* Floating toggle button (visible when panel collapsed) */
+.dash-floating-btn {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 100000;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--dash-border);
+  background: var(--dash-bg2);
+  color: var(--dash-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+.dash-floating-btn:hover {
+  background: var(--dash-bg3);
+  border-color: var(--dash-primary);
+  box-shadow: 0 4px 20px rgba(128,32,208,0.3);
+}
+
+/* Main dashboard panel */
+.dash-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--dash-width);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 0, 22, 0.92);
+  backdrop-filter: blur(16px);
+  border-left: 1px solid var(--dash-border);
+  box-shadow: -8px 0 40px rgba(0,0,0,0.5);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: system-ui, -apple-system, sans-serif;
+  color: var(--dash-text);
+  overflow: hidden;
+}
+.dash-panel.dash-collapsed {
+  transform: translateX(calc(var(--dash-width) + 16px));
+}
+
+/* Inner scrollable container */
+.dash-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* ── Sections ── */
+.dash-section {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(128, 32, 208, 0.1);
+}
+.dash-section:last-child {
+  border-bottom: none;
+}
+.dash-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.dash-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--dash-text-dim);
+}
+
+/* ── Header ── */
+.dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(128,32,208,0.2), transparent);
+  border-bottom: 1px solid var(--dash-border);
+  flex-shrink: 0;
+}
+.dash-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--dash-text-bright);
+}
+.dash-header-left svg {
+  color: var(--dash-primary-light);
+}
+.dash-header-actions {
+  display: flex;
+  gap: 4px;
+}
+.dash-header-btn {
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: rgba(255,255,255,0.06);
+  color: var(--dash-text-dim);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.15s;
+}
+.dash-header-btn:hover {
+  background: rgba(128,32,208,0.2);
+  color: var(--dash-text-bright);
+}
+
+/* ── Mode Selector ── */
+.dash-mode-section {
+  flex-shrink: 0;
+}
+.dash-mode-pills {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.dash-pill {
+  flex: 1;
+  padding: 5px 0;
+  border: 1px solid rgba(128,32,208,0.2);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dash-text-dim);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.15s;
+  text-align: center;
+  font-family: inherit;
+}
+.dash-pill:hover {
+  background: rgba(128,32,208,0.12);
+  color: var(--dash-text);
+  border-color: rgba(128,32,208,0.35);
+}
+.dash-pill.active {
+  background: rgba(128,32,208,0.3);
+  border-color: var(--dash-primary);
+  color: var(--dash-text-bright);
+  box-shadow: 0 0 12px rgba(128,32,208,0.2);
+}
+.dash-pill.auto-mode {
+  border-color: rgba(255,200,50,0.3);
+  color: rgba(255,200,50,0.6);
+}
+.dash-pill.auto-mode.active {
+  background: rgba(255,200,50,0.15);
+  border-color: rgba(255,200,50,0.5);
+  color: #ffc832;
+  box-shadow: 0 0 12px rgba(255,200,50,0.15);
+}
+.dash-mode-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--dash-text-dim);
+}
+.dash-mode-info strong {
+  color: var(--dash-text);
+}
+
+/* ── Kanban Board ── */
+.dash-board-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.dash-refresh-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--dash-primary-dark);
+  transition: background 0.3s;
+}
+.dash-refresh-indicator.loading {
+  background: var(--dash-primary-light);
+  animation: dash-pulse 1s ease-in-out infinite;
+}
+@keyframes dash-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.dash-refresh-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--dash-text-dim);
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dash-refresh-btn:hover {
+  color: var(--dash-text-bright);
+  transform: rotate(90deg);
+}
+
+.dash-kanban {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 4px;
+  min-height: 0;
+  padding-bottom: 4px;
+}
+.kanban-col {
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--dash-radius-sm);
+  border: 1px solid rgba(128,32,208,0.08);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.kanban-col-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--dash-text-dim);
+  border-bottom: 1px solid rgba(128,32,208,0.06);
+  flex-shrink: 0;
+}
+.kanban-count {
+  background: rgba(128,32,208,0.15);
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 9px;
+  color: var(--dash-primary-light);
+}
+.kanban-cards {
+  flex: 1;
+  overflow-y: auto;
+  padding: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.kanban-cards::-webkit-scrollbar {
+  width: 3px;
+}
+.kanban-cards::-webkit-scrollbar-thumb {
+  background: rgba(128,32,208,0.2);
+  border-radius: 2px;
+}
+
+/* Task cards */
+.kanban-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(128,32,208,0.1);
+  border-radius: 4px;
+  padding: 5px 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+.kanban-card:hover {
+  background: rgba(128,32,208,0.1);
+  border-color: rgba(128,32,208,0.25);
+  transform: translateY(-1px);
+}
+.kanban-card-title {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--dash-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+.kanban-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.kanban-card-prio {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+.kanban-card-prio.p1 {
+  background: rgba(255,50,50,0.2);
+  color: #ff5050;
+}
+.kanban-card-prio.p2 {
+  background: rgba(255,200,50,0.15);
+  color: #ffc832;
+}
+.kanban-card-prio.p3 {
+  background: rgba(50,200,100,0.15);
+  color: #32c864;
+}
+.kanban-card-assignee {
+  font-size: 8px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(128,32,208,0.12);
+  color: var(--dash-primary-light);
+  max-width: 60px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kanban-empty {
+  font-size: 10px;
+  color: var(--dash-text-dim);
+  text-align: center;
+  padding: 12px 4px;
+  opacity: 0.5;
+}
+.kanban-loading {
+  font-size: 10px;
+  color: var(--dash-primary-light);
+  text-align: center;
+  padding: 12px 4px;
+  animation: dash-pulse 0.8s ease-in-out infinite;
+}
+
+/* ── Agents Section ── */
+.dash-agents-section {
+  flex-shrink: 0;
+}
+.dash-agents-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.dash-agent-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 4px;
+  font-size: 10px;
+  color: var(--dash-text-dim);
+}
+.dash-agent-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dash-agent-dot.idle {
+  background: #32c864;
+  box-shadow: 0 0 4px rgba(50,200,100,0.3);
+}
+.dash-agent-dot.busy {
+  background: #ffc832;
+  box-shadow: 0 0 4px rgba(255,200,50,0.3);
+  animation: dash-pulse 1.2s ease-in-out infinite;
+}
+.dash-agent-dot.error {
+  background: #ff5050;
+  box-shadow: 0 0 4px rgba(255,50,50,0.3);
+}
+.dash-agent-name {
+  color: var(--dash-text);
+}
+.dash-agent-task {
+  font-size: 8px;
+  color: var(--dash-text-dim);
+  max-width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Quick Create ── */
+.dash-create-section {
+  flex-shrink: 0;
+}
+.dash-create-form {
+  display: flex;
+  gap: 4px;
+}
+.dash-input {
+  flex: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(128,32,208,0.15);
+  border-radius: 4px;
+  padding: 6px 8px;
+  color: var(--dash-text);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.dash-input:focus {
+  border-color: var(--dash-primary);
+  box-shadow: 0 0 0 1px var(--dash-primary-dark);
+}
+.dash-input::placeholder {
+  color: var(--dash-text-dim);
+  opacity: 0.5;
+}
+.dash-textarea {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(128,32,208,0.15);
+  border-radius: 4px;
+  padding: 6px 8px;
+  color: var(--dash-text);
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s;
+}
+.dash-textarea:focus {
+  border-color: var(--dash-primary);
+  box-shadow: 0 0 0 1px var(--dash-primary-dark);
+}
+.dash-select {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(128,32,208,0.15);
+  border-radius: 4px;
+  padding: 5px 6px;
+  color: var(--dash-text);
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+}
+.dash-btn {
+  padding: 6px 12px;
+  border: 1px solid rgba(128,32,208,0.2);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--dash-text);
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.dash-btn:hover {
+  background: rgba(128,32,208,0.12);
+  border-color: rgba(128,32,208,0.35);
+}
+.dash-btn-primary {
+  background: var(--dash-primary);
+  border-color: var(--dash-primary);
+  color: white;
+  font-weight: 500;
+}
+.dash-btn-primary:hover {
+  background: var(--dash-primary-light);
+  border-color: var(--dash-primary-light);
+  box-shadow: 0 0 12px rgba(128,32,208,0.3);
+}
+.dash-btn-outline {
+  background: transparent;
+  border-color: rgba(128,32,208,0.2);
+  color: var(--dash-text-dim);
+}
+.dash-btn-outline:hover {
+  background: rgba(128,32,208,0.1);
+  color: var(--dash-text);
+  border-color: rgba(128,32,208,0.35);
+}
+.dash-btn-sm {
+  padding: 3px 8px;
+  font-size: 10px;
+}
+.dash-create-extras {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dash-create-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+.dash-actions-section {
+  flex-shrink: 0;
+  display: flex;
+  gap: 4px;
+}
+.dash-actions-section .dash-btn {
+  flex: 1;
+  text-align: center;
+}
+
+/* ── Modal ── */
+.dash-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200000;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: dash-fadeIn 0.2s ease;
+}
+@keyframes dash-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.dash-modal {
+  background: var(--dash-bg2);
+  border: 1px solid var(--dash-border);
+  border-radius: 12px;
+  width: 420px;
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  animation: dash-modalSlide 0.2s ease;
+}
+@keyframes dash-modalSlide {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.dash-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(128,32,208,0.1);
+}
+.dash-modal-header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--dash-text-bright);
+}
+.dash-modal-close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: rgba(255,255,255,0.06);
+  color: var(--dash-text-dim);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.15s;
+}
+.dash-modal-close:hover {
+  background: rgba(128,32,208,0.2);
+  color: var(--dash-text-bright);
+}
+.dash-modal-body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+.dash-modal-field {
+  margin-bottom: 12px;
+}
+.dash-modal-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--dash-text-dim);
+  margin-bottom: 3px;
+}
+.dash-modal-value {
+  font-size: 13px;
+  color: var(--dash-text);
+}
+.dash-modal-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(128,32,208,0.1);
+}
+
+/* ── Plan Popup ── */
+.dash-plan-popup {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  width: 300px;
+  background: var(--dash-bg2);
+  border: 1px solid var(--dash-border);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 -8px 30px rgba(0,0,0,0.4);
+  z-index: 99999;
+  animation: dash-modalSlide 0.2s ease;
+}
+.dash-plan-popup p {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--dash-text);
+}
+.dash-plan-popup-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* ── Connection status ── */
+.dash-connecting {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--dash-text-dim);
+  font-size: 13px;
+}
+.dash-connecting .spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--dash-border);
+  border-top-color: var(--dash-primary-light);
+  border-radius: 50%;
+  animation: dash-spin 0.8s linear infinite;
+}
+@keyframes dash-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Priority badge colors in modal ── */
+.badge-p1 { background: rgba(255,50,50,0.15); color: #ff5050; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+.badge-p2 { background: rgba(255,200,50,0.15); color: #ffc832; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+.badge-p3 { background: rgba(50,200,100,0.15); color: #32c864; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+.badge-status { padding: 2px 8px; border-radius: 4px; font-weight: 500; font-size: 11px; }
+
+/* ── Error toast ── */
+.dash-error-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300000;
+  background: rgba(255,50,50,0.9);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  animation: dash-fadeIn 0.2s ease;
+  pointer-events: none;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .dash-panel {
+    width: 300px;
+  }
+  .dash-panel.dash-collapsed {
+    transform: translateX(316px);
+  }
+  .dash-modal {
+    width: 95vw;
+  }
+}
+</style>
+</head><body>
+<!-- ── Task Dashboard Panel ── -->
+<div id="dash-panel" class="dash-panel">
+  <!-- Floating toggle button (visible when collapsed) -->
+  <button id="dash-floating-btn" class="dash-floating-btn" style="display:none" title="Open Dashboard">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+  </button>
+  <div class="dash-inner">
+    <!-- Header -->
+    <div class="dash-header">
+      <div class="dash-header-left">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <span>AI Team Dashboard</span>
+        <span id="dash-code-indicator" style="display:none;font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(128,32,208,0.2);color:#b060f0;margin-left:4px">⚡Tools</span>
+      </div>
+      <div class="dash-header-actions">
+        <button class="dash-header-btn" id="dash-minimize-btn" title="Collapse panel">—</button>
+        <button class="dash-header-btn" id="dash-close-btn" title="Close panel">✕</button>
+      </div>
+    </div>
+    
+    <!-- Mode Selector -->
+    <div class="dash-section dash-mode-section">
+      <div class="dash-mode-pills">
+        <button class="dash-pill" data-mode="ask">Ask</button>
+        <button class="dash-pill" data-mode="plan">Plan</button>
+        <button class="dash-pill active" data-mode="code">Code</button>
+        <button class="dash-pill" data-mode="auto">Auto</button>
+      </div>
+      <div class="dash-mode-info">
+        <span>Current: <strong id="dash-mode-label">Code</strong></span>
+        <span>Tasks: <strong id="dash-total-tasks">0</strong></span>
+      </div>
+    </div>
+    
+    <!-- Kanban Board -->
+    <div class="dash-section dash-board-section">
+      <div class="dash-section-header">
+        <span class="dash-section-title">📋 Task Board</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="dash-refresh-indicator" id="dash-refresh-indicator"></span>
+          <button class="dash-refresh-btn" id="dash-refresh-btn" title="Refresh tasks">↻</button>
+        </div>
+      </div>
+      <div class="dash-kanban" id="dash-kanban">
+        <div class="kanban-col" data-col="backlog">
+          <div class="kanban-col-hd"><span>📥 Backlog</span><span class="kanban-count" id="kc-backlog">0</span></div>
+          <div class="kanban-cards" id="cards-backlog"></div>
+        </div>
+        <div class="kanban-col" data-col="planning">
+          <div class="kanban-col-hd"><span>📋 Planning</span><span class="kanban-count" id="kc-planning">0</span></div>
+          <div class="kanban-cards" id="cards-planning"></div>
+        </div>
+        <div class="kanban-col" data-col="in_progress">
+          <div class="kanban-col-hd"><span>⚡ In Progress</span><span class="kanban-count" id="kc-in_progress">0</span></div>
+          <div class="kanban-cards" id="cards-in_progress"></div>
+        </div>
+        <div class="kanban-col" data-col="done">
+          <div class="kanban-col-hd"><span>✅ Done</span><span class="kanban-count" id="kc-done">0</span></div>
+          <div class="kanban-cards" id="cards-done"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Agents -->
+    <div class="dash-section dash-agents-section">
+      <div class="dash-section-header">
+        <span class="dash-section-title">🤖 Agents</span>
+        <span class="dash-agents-summary" id="dash-agents-summary">0/0 idle</span>
+      </div>
+      <div class="dash-agents-list" id="dash-agents-list"></div>
+    </div>
+    
+    <!-- Quick Create -->
+    <div class="dash-section dash-create-section">
+      <div class="dash-create-form">
+        <input type="text" class="dash-input" id="dash-task-title" placeholder="Quick task title..." maxlength="100">
+        <button class="dash-btn dash-btn-primary" id="dash-create-btn">Create</button>
+      </div>
+      <div class="dash-create-extras" id="dash-create-extras" style="display:none">
+        <textarea class="dash-textarea" id="dash-task-desc" placeholder="Description (optional)" rows="2"></textarea>
+        <div style="display:flex;gap:4px">
+          <select class="dash-select" id="dash-task-priority">
+            <option value="1">P1 - Critical</option>
+            <option value="2" selected>P2 - High</option>
+            <option value="3">P3 - Medium</option>
+          </select>
+          <select class="dash-select" id="dash-task-epic" style="flex:1">
+            <option value="">No epic</option>
+          </select>
+        </div>
+        <div class="dash-create-actions">
+          <button class="dash-btn dash-btn-sm" id="dash-create-cancel">Cancel</button>
+          <button class="dash-btn dash-btn-sm dash-btn-primary" id="dash-create-submit">✓ Create</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Actions -->
+    <div class="dash-section dash-actions-section">
+      <button class="dash-btn dash-btn-outline dash-btn-sm" id="dash-new-goal-btn">⚙️ New Goal</button>
+      <button class="dash-btn dash-btn-outline dash-btn-sm" id="dash-plan-request-btn">📋 Plan Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- Task Detail Modal -->
+<div id="dash-modal-overlay" class="dash-modal-overlay" style="display:none">
+  <div class="dash-modal">
+    <div class="dash-modal-header">
+      <h3>Task Details</h3>
+      <button class="dash-modal-close" id="dash-modal-close-btn">✕</button>
+    </div>
+    <div class="dash-modal-body" id="dash-modal-body"></div>
+  </div>
+</div>
+<script>
+// ── AI Team Dashboard — Mode Routing + Task Management ──
+(function(){
+'use strict';
+
+const CEO_BASE = 'http://localhost:8282';
+const MODE_KEY = 'aiteam_mode';
+const PANEL_KEY = 'dash_panel_open';
+const MODE_HEADER = 'X-AI-Mode';
+const CONV_HEADER = 'X-Conversation-Id';
+const REFRESH_MS = 8000;
+
+// ── State ──
+const state = {
+  mode: localStorage.getItem(MODE_KEY) || 'auto',
+  panelOpen: true,
+  tasks: [],
+  agents: [],
+  goals: [],
+  epics: [],
+  loading: false,
+  agentLoading: false,
+  error: null,
+  editTaskId: null,
+  refreshTimer: null,
+  agentTimer: null,
+  convId: localStorage.getItem('aiteam_conv_id') || ('conv-' + Math.random().toString(36).slice(2, 14)),
+};
+
+// ── DOM refs (warm after DOM ready) ──
+let $ = (s) => document.querySelector(s);
+let $$ = (s) => document.querySelectorAll(s);
+
+// ── API ──
+async function api(path, opts = {}) {
+  const url = path.startsWith('http') ? path : CEO_BASE + path;
+  const res = await fetch(url, {
+    headers: { 'Content-Type': 'application/json', ...opts.headers },
+    ...opts,
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`API ${res.status}: ${text.slice(0, 100)}`);
+  }
+  return res.json();
+}
+
+function showError(msg) {
+  state.error = msg;
+  const el = document.getElementById('dash-error-toast') || (()=>{
+    const e = document.createElement('div');
+    e.id = 'dash-error-toast';
+    e.className = 'dash-error-toast';
+    document.body.appendChild(e);
+    return e;
+  })();
+  e.textContent = msg;
+  e.style.display = 'block';
+  setTimeout(() => { e.style.display = 'none'; state.error = null; }, 4000);
+}
+
+// ── Mode Management ──
+function setMode(mode) {
+  state.mode = mode;
+  localStorage.setItem(MODE_KEY, mode);
+  window.__aiMode = mode;
+  document.body.dataset.mode = mode;
+
+  document.querySelectorAll('.dash-pill').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  const label = document.getElementById('dash-mode-label');
+  if (label) label.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
+
+  const ci = document.getElementById('dash-code-indicator');
+  if (ci) ci.style.display = mode === 'code' ? 'inline-flex' : 'none';
+
+  window.dispatchEvent(new CustomEvent('ai-mode-change', { detail: { mode } }));
+
+  if (mode === 'plan') checkPlanPopup();
+}
+
+function checkPlanPopup() {
+  const input = document.querySelector('textarea:not([class*="dash"]):not([id*="dash"])');
+  if (input && input.value && input.value.trim().length > 5) {
+    showPlanPopup(input.value.trim());
+  }
+}
+
+function showPlanPopup(text) {
+  const existing = document.getElementById('dash-plan-popup');
+  if (existing) existing.remove();
+  const popup = document.createElement('div');
+  popup.id = 'dash-plan-popup';
+  popup.className = 'dash-plan-popup';
+  popup.innerHTML = `<p>📋 Create a plan from your message?</p>
+    <div class="dash-plan-popup-actions">
+      <button class="dash-btn dash-btn-sm" id="dash-plan-cancel">Not now</button>
+      <button class="dash-btn dash-btn-sm dash-btn-primary" id="dash-plan-confirm">Create Plan</button>
+    </div>`;
+  const modeSection = document.querySelector('.dash-mode-section');
+  if (modeSection) {
+    modeSection.style.position = 'relative';
+    modeSection.appendChild(popup);
+  }
+  document.getElementById('dash-plan-cancel')?.addEventListener('click', () => popup.remove());
+  document.getElementById('dash-plan-confirm')?.addEventListener('click', () => {
+    popup.remove();
+    sendPlanRequest(text);
+  });
+  setTimeout(() => popup.remove(), 8000);
+}
+
+async function sendPlanRequest(text) {
+  try {
+    const res = await api('/v1/chat/completions', {
+      method: 'POST',
+      body: JSON.stringify({
+        model: 'qwen/qwen3-next-80b-a3b-instruct',
+        messages: [{ role: 'user', content: text }],
+        temperature: 0.3,
+        max_tokens: 4096,
+        stream: false,
+      }),
+      headers: { [MODE_HEADER]: 'plan', [CONV_HEADER]: state.convId },
+    });
+    const planText = res?.choices?.[0]?.message?.content || '';
+    if (planText) {
+      showPlanResult(planText);
+      setTimeout(refreshTasks, 1500);
+    }
+  } catch (e) {
+    showError('Plan request failed: ' + e.message);
+  }
+}
+
+function showPlanResult(text) {
+  const modalBody = document.getElementById('dash-modal-body');
+  const overlay = document.getElementById('dash-modal-overlay');
+  if (!modalBody || !overlay) return;
+  modalBody.innerHTML = `<div class="dash-modal-field">
+    <div class="dash-modal-label">Generated Plan</div>
+    <div class="dash-modal-value" style="white-space:pre-wrap;font-size:12px;line-height:1.5;max-height:50vh;overflow-y:auto">${escHtml(text)}</div>
+  </div>
+  <div class="dash-modal-actions">
+    <button class="dash-btn dash-btn-primary" id="dash-plan-execute-btn">▶ Execute Plan</button>
+    <button class="dash-btn" id="dash-plan-dismiss-btn">Dismiss</button>
+  </div>`;
+  overlay.style.display = 'flex';
+  document.getElementById('dash-plan-execute-btn')?.addEventListener('click', () => {
+    setMode('code');
+    overlay.style.display = 'none';
+  });
+  document.getElementById('dash-plan-dismiss-btn')?.addEventListener('click', () => {
+    overlay.style.display = 'none';
+  });
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ── Task Rendering ──
+function renderTasks() {
+  const columns = {
+    backlog: document.getElementById('cards-backlog'),
+    planning: document.getElementById('cards-planning'),
+    in_progress: document.getElementById('cards-in_progress'),
+    done: document.getElementById('cards-done'),
+  };
+
+  const counts = { backlog: 0, planning: 0, in_progress: 0, done: 0 };
+  const colKeys = Object.keys(columns);
+
+  // Reset all columns
+  colKeys.forEach(k => {
+    if (columns[k]) columns[k].innerHTML = '';
+    const countEl = document.getElementById('kc-' + k);
+    if (countEl) countEl.textContent = '0';
+  });
+
+  // If CEO is disconnected
+  if (state.error && state.tasks.length === 0) {
+    colKeys.forEach(k => {
+      if (columns[k]) columns[k].innerHTML = '<div class="dash-connecting"><div class="spinner"></div><span>Connecting to CEO...</span></div>';
+    });
+    return;
+  }
+
+  if (state.loading && state.tasks.length === 0) {
+    colKeys.forEach(k => {
+      if (columns[k]) columns[k].innerHTML = '<div class="kanban-loading">Loading...</div>';
+    });
+    return;
+  }
+
+  state.tasks.forEach(task => {
+    const status = task.status || 'backlog';
+    const col = columns[status];
+    if (!col) return;
+    counts[status]++;
+
+    const prio = task.priority || 3;
+    const prioClass = 'p' + prio;
+    const prioLabel = 'P' + prio;
+
+    const card = document.createElement('div');
+    card.className = 'kanban-card';
+    card.dataset.taskId = task.id;
+
+    const assignee = task.assignee || '';
+
+    card.innerHTML = `<div class="kanban-card-title" title="${escHtml(task.title)}">${escHtml(task.title)}</div>
+      <div class="kanban-card-meta">
+        <span class="kanban-card-prio ${prioClass}">${prioLabel}</span>
+        ${assignee ? `<span class="kanban-card-assignee">${escHtml(assignee)}</span>` : ''}
+      </div>`;
+
+    card.addEventListener('click', () => showTaskDetail(task.id));
+    col.appendChild(card);
+  });
+
+  // Show empty states
+  colKeys.forEach(k => {
+    const col = columns[k];
+    if (col && counts[k] === 0 && !state.loading && !state.error) {
+      col.innerHTML = '<div class="kanban-empty">No tasks</div>';
+    }
+    const countEl = document.getElementById('kc-' + k);
+    if (countEl) countEl.textContent = counts[k];
+  });
+
+  document.getElementById('dash-total-tasks').textContent = state.tasks.length;
+  updateRefreshIndicator(false);
+}
+
+function updateRefreshIndicator(loading) {
+  const ind = document.getElementById('dash-refresh-indicator');
+  if (ind) ind.classList.toggle('loading', loading);
+}
+
+// ── Task Detail Modal ──
+async function showTaskDetail(taskId) {
+  const overlay = document.getElementById('dash-modal-overlay');
+  const body = document.getElementById('dash-modal-body');
+  if (!overlay || !body) return;
+
+  body.innerHTML = '<div class="kanban-loading">Loading...</div>';
+  overlay.style.display = 'flex';
+
+  try {
+    const task = await api('/v1/tasks/' + taskId);
+    const prio = task.priority || 3;
+    const prioLabel = 'P' + prio;
+    const statusColors = {
+      backlog: 'rgba(100,100,150,0.2)', planning: 'rgba(128,32,208,0.2)', in_progress: 'rgba(255,200,50,0.2)', review: 'rgba(50,150,255,0.2)', qa: 'rgba(255,100,50,0.2)', security: 'rgba(255,50,100,0.2)', approval: 'rgba(200,50,255,0.2)', done: 'rgba(50,200,100,0.2)', cancelled: 'rgba(100,100,100,0.2)',
+    };
+    const statusColor = statusColors[task.status] || 'rgba(100,100,150,0.2)';
+    const statusLabel = (task.status || 'backlog').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+    body.innerHTML = `<div class="dash-modal-field">
+        <div class="dash-modal-label">Title</div>
+        <div class="dash-modal-value" style="font-weight:600">${escHtml(task.title)}</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <span class="badge-p${prio}">${prioLabel}</span>
+        <span class="badge-status" style="background:${statusColor}">${statusLabel}</span>
+        ${task.assignee ? `<span style="padding:2px 8px;border-radius:4px;background:rgba(128,32,208,0.12);color:#b060f0;font-size:11px">${escHtml(task.assignee)}</span>` : '<span style="padding:2px 8px;border-radius:4px;background:rgba(255,255,255,0.05);color:#9080a8;font-size:11px">Unassigned</span>'}
+      </div>
+      <div class="dash-modal-field">
+        <div class="dash-modal-label">Description</div>
+        <div class="dash-modal-value" style="font-size:12px">${task.description ? escHtml(task.description) : '<span style="color:#9080a8">No description</span>'}</div>
+      </div>
+      <div class="dash-modal-field">
+        <div class="dash-modal-label">Created</div>
+        <div class="dash-modal-value" style="font-size:11px">${task.created_at ? new Date(task.created_at).toLocaleString() : '-'}</div>
+      </div>
+      <div class="dash-modal-field">
+        <div class="dash-modal-label">Epic ID</div>
+        <div class="dash-modal-value" style="font-size:11px">${task.epic_id || '-'}</div>
+      </div>
+      <div class="dash-modal-actions">
+        <button class="dash-btn dash-btn-sm dash-btn-outline" data-action="assign-eng-a">Assign eng-a</button>
+        <button class="dash-btn dash-btn-sm dash-btn-outline" data-action="assign-eng-b">Assign eng-b</button>
+        <button class="dash-btn dash-btn-sm dash-btn-outline" data-action="move-planning">→ Planning</button>
+        <button class="dash-btn dash-btn-sm dash-btn-outline" data-action="move-in_progress">→ In Progress</button>
+        <button class="dash-btn dash-btn-sm dash-btn-outline" data-action="move-done">→ Done</button>
+      </div>`;
+
+    // Wire up modal actions
+    body.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const action = btn.dataset.action;
+        try {
+          if (action.startsWith('assign-')) {
+            const agent = action.replace('assign-', '');
+            await api('/v1/tasks/assign', { method: 'POST', body: JSON.stringify({ task_id: taskId, assignee: agent }) });
+          } else if (action.startsWith('move-')) {
+            const newStatus = action.replace('move-', '');
+            await api('/v1/tasks/' + taskId, { method: 'PATCH', body: JSON.stringify({ status: newStatus }) });
+          }
+          overlay.style.display = 'none';
+          setTimeout(refreshTasks, 300);
+        } catch (e) {
+          showError('Action failed: ' + e.message);
+        }
+      });
+    });
+  } catch (e) {
+    body.innerHTML = `<div style="color:#ff5050;padding:20px;text-align:center">Error: ${escHtml(e.message)}</div>`;
+  }
+}
+
+// ── Agents Rendering ──
+function renderAgents() {
+  const list = document.getElementById('dash-agents-list');
+  const summary = document.getElementById('dash-agents-summary');
+  if (!list) return;
+
+  if (state.agentLoading && state.agents.length === 0) {
+    list.innerHTML = '<span style="font-size:10px;color:#9080a8">Loading agents...</span>';
+    return;
+  }
+
+  const busy = state.agents.filter(a => a.status === 'busy').length;
+  if (summary) summary.textContent = `${busy}/${state.agents.length} busy`;
+
+  list.innerHTML = state.agents.map(a => `<div class="dash-agent-item">
+    <span class="dash-agent-dot ${a.status || 'idle'}"></span>
+    <span class="dash-agent-name">${escHtml(a.id)}</span>
+    ${a.current_task_id ? `<span class="dash-agent-task">${escHtml(a.current_task_id.slice(0,8))}</span>` : ''}
+  </div>`).join('') || '<span style="font-size:10px;color:#9080a8">No agents</span>';
+}
+
+// ── Data Fetching ──
+async function refreshTasks() {
+  if (state.loading) return;
+  state.loading = true;
+  updateRefreshIndicator(true);
+
+  try {
+    const tasks = await api('/v1/tasks');
+    state.tasks = tasks;
+    state.error = null;
+  } catch (e) {
+    state.error = e.message;
+    if (state.tasks.length === 0) {
+      // Show connecting state on first load
+    }
+  } finally {
+    state.loading = false;
+    renderTasks();
+  }
+}
+
+async function refreshAgents() {
+  state.agentLoading = true;
+  try {
+    const agents = await api('/v1/agents');
+    state.agents = agents;
+  } catch (e) {
+    // Silently fail on agent fetch
+  } finally {
+    state.agentLoading = false;
+    renderAgents();
+  }
+}
+
+// ── Quick Create ──
+function setupQuickCreate() {
+  const titleInput = document.getElementById('dash-task-title');
+  const createBtn = document.getElementById('dash-create-btn');
+  const extras = document.getElementById('dash-create-extras');
+  const cancelBtn = document.getElementById('dash-create-cancel');
+  const submitBtn = document.getElementById('dash-create-submit');
+  const descInput = document.getElementById('dash-task-desc');
+  const prioSelect = document.getElementById('dash-task-priority');
+  const epicSelect = document.getElementById('dash-task-epic');
+
+  if (!titleInput || !createBtn) return;
+
+  createBtn.addEventListener('click', () => {
+    const title = titleInput.value.trim();
+    if (!title) return;
+    if (extras && extras.style.display === 'none') {
+      extras.style.display = 'flex';
+      createBtn.textContent = 'Submit';
+      descInput?.focus();
+      // Load epics
+      api('/v1/goals').then(goals => {
+        state.goals = goals;
+        if (epicSelect) {
+          epicSelect.innerHTML = '<option value="">No epic</option>' + goals.map(g => `<option value="${g.id}">${escHtml(g.text.slice(0,30))}</option>`).join('');
+        }
+      }).catch(() => {});
+      return;
+    }
+    doCreateTask(title, descInput?.value || '', parseInt(prioSelect?.value || '2'), epicSelect?.value || '');
+  });
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', () => {
+      if (extras) extras.style.display = 'none';
+      createBtn.textContent = 'Create';
+      titleInput.value = '';
+    });
+  }
+
+  if (submitBtn) {
+    submitBtn.addEventListener('click', () => {
+      const title = titleInput.value.trim();
+      if (!title) return;
+      doCreateTask(title, descInput?.value || '', parseInt(prioSelect?.value || '2'), epicSelect?.value || '');
+    });
+  }
+
+  titleInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && titleInput.value.trim()) {
+      e.preventDefault();
+      createBtn.click();
+    }
+  });
+}
+
+async function doCreateTask(title, desc, priority, epicId) {
+  const titleInput = document.getElementById('dash-task-title');
+  const extras = document.getElementById('dash-create-extras');
+  const createBtn = document.getElementById('dash-create-btn');
+
+  try {
+    await api('/v1/tasks', {
+      method: 'POST',
+      body: JSON.stringify({ title, description: desc, priority, epic_id: epicId }),
+    });
+    if (titleInput) titleInput.value = '';
+    if (extras) extras.style.display = 'none';
+    if (createBtn) createBtn.textContent = 'Create';
+    const descInput = document.getElementById('dash-task-desc');
+    if (descInput) descInput.value = '';
+    setTimeout(refreshTasks, 300);
+  } catch (e) {
+    showError('Failed to create task: ' + e.message);
+  }
+}
+
+// ── Panel Toggle ──
+function togglePanel(open) {
+  state.panelOpen = open;
+  const panel = document.getElementById('dash-panel');
+  const btn = document.getElementById('dash-floating-btn');
+  if (panel) {
+    panel.classList.toggle('dash-collapsed', !open);
+    panel.style.display = open ? '' : '';
+  }
+  if (btn) btn.style.display = open ? 'none' : '';
+  localStorage.setItem(PANEL_KEY, open ? '1' : '0');
+}
+
+// ── Init ──
+function init() {
+  // Restore panel state
+  const savedPanel = localStorage.getItem(PANEL_KEY);
+  if (savedPanel === '0') togglePanel(false);
+
+  // Store conv ID
+  localStorage.setItem('aiteam_conv_id', state.convId);
+
+  // Fetch intercept: add mode + conv headers to /api/ calls
+  const origFetch = window.fetch;
+  window.fetch = function(url, opts) {
+    opts = opts || {};
+    opts.headers = opts.headers || {};
+    if (typeof url === 'string' && (url.includes('/api/') || url.includes(':8282'))) {
+      opts.headers[MODE_HEADER] = state.mode;
+      opts.headers[CONV_HEADER] = state.convId;
+    }
+    return origFetch.call(window, url, opts);
+  };
+
+  // ── Mode pills ──
+  document.querySelectorAll('.dash-pill').forEach(b => {
+    b.addEventListener('click', () => {
+      const mode = b.dataset.mode;
+      setMode(mode);
+      // If plan was clicked, check chat input for content
+      if (mode === 'plan') {
+        setTimeout(() => checkPlanPopup(), 100);
+      }
+    });
+  });
+
+  // Panel controls
+  document.getElementById('dash-minimize-btn')?.addEventListener('click', () => togglePanel(false));
+  document.getElementById('dash-close-btn')?.addEventListener('click', () => togglePanel(false));
+  document.getElementById('dash-floating-btn')?.addEventListener('click', () => togglePanel(true));
+  document.getElementById('dash-refresh-btn')?.addEventListener('click', refreshTasks);
+
+  // Modal close
+  document.getElementById('dash-modal-close-btn')?.addEventListener('click', () => {
+    document.getElementById('dash-modal-overlay').style.display = 'none';
+  });
+  document.getElementById('dash-modal-overlay')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) e.target.style.display = 'none';
+  });
+
+  // Action buttons
+  document.getElementById('dash-new-goal-btn')?.addEventListener('click', () => {
+    const text = prompt('What is the goal?');
+    if (text && text.trim()) {
+      api('/v1/goals', { method: 'POST', body: JSON.stringify({ text: text.trim(), description: text.trim() }) })
+        .then(() => refreshTasks())
+        .catch(e => showError('Goal creation failed: ' + e.message));
+    }
+  });
+
+  document.getElementById('dash-plan-request-btn')?.addEventListener('click', () => {
+    const text = prompt('Describe what you want to build:');
+    if (text && text.trim()) {
+      sendPlanRequest(text.trim());
+    }
+  });
+
+  // Setup quick create
+  setupQuickCreate();
+
+  // Restore mode
+  setMode(state.mode);
+
+  // Initial fetch
+  refreshTasks();
+  refreshAgents();
+
+  // Auto-refresh tasks
+  state.refreshTimer = setInterval(refreshTasks, REFRESH_MS);
+  state.agentTimer = setInterval(refreshAgents, REFRESH_MS * 2);
+}
+
+// Wait for DOM
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+})();
+</script>
+<script>
+console.log("💿 Hey developer 👋. You can provide a way better UX than this " +
+  "when your app is loading JS modules and/or running `clientLoader` " +
+  "functions. Check out https://reactrouter.com/start/framework/route-module#hydratefallback " +
+  "for more information.");
+</script><script>window.__reactRouterContext = {"basename":"/","future":{"unstable_optimizeDeps":false,"v8_passThroughRequests":false,"v8_trailingSlashAwareDataRequests":false,"unstable_previewServerPrerendering":false,"v8_middleware":false,"v8_splitRouteModules":false,"v8_viteEnvironmentApi":false},"routeDiscovery":{"mode":"initial"},"ssr":false,"isSpaMode":true};window.__reactRouterContext.stream = new ReadableStream({start(controller){window.__reactRouterContext.streamController = controller;}}).pipeThrough(new TextEncoderStream());</script><script type="module" async="">import "/assets/manifest-6ff52bb0.js";
+import * as route0 from "/assets/root-BOh9UxHp.js";
+window.__reactRouterRouteModules = {"root":route0};
+import("/assets/entry.client-Dzk2o8LE.js");</script>
+<div data-rht-toaster="" style="position:fixed;z-index:9999;top:16px;left:16px;right:16px;bottom:16px;pointer-events:none"></div>
+<div id="modal-portal-exit"></div>
+<!--$--><script>window.__reactRouterContext.streamController.enqueue("[{\"_1\":2,\"_3\":-5,\"_4\":-5},\"loaderData\",{},\"actionData\",\"errors\"]\n");</script><!--$--><script>window.__reactRouterContext.streamController.close();</script><!--/$--><!--/$-->
+</body></html>

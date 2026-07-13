@@ -1,0 +1,19 @@
+{
+    "name": "AI Team",
+    "short_name": "AI Team",
+    "icons": [
+        {
+            "src": "/logo.jpg",
+            "sizes": "192x192",
+            "type": "image/jpeg"
+        },
+        {
+            "src": "/logo.jpg",
+            "sizes": "512x512",
+            "type": "image/jpeg"
+        }
+    ],
+    "theme_color": "#500080",
+    "background_color": "#0a0014",
+    "display": "standalone"
+}

@@ -1,0 +1,1 @@
+import{j as r}from"./chunk-6CSD65Y2-BdQTlvlT.js";import{c as t}from"./utils-BPJZNxva.js";function i({icon:e,text:n,className:o}){return r.jsxs("div",{className:t("flex items-center gap-2 p-2 hover:bg-[#5C5D62] rounded",o),children:[e,n]})}export{i as C};

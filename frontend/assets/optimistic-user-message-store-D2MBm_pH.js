@@ -1,0 +1,1 @@
+import{c as t}from"./organization-service.api-DhsU05UR.js";const r={optimisticUserMessage:null},c=t((s,e)=>({...r,setOptimisticUserMessage:i=>s(()=>({optimisticUserMessage:i})),getOptimisticUserMessage:()=>e().optimisticUserMessage,removeOptimisticUserMessage:()=>s(()=>({optimisticUserMessage:null}))}));export{c as u};

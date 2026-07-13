@@ -1,0 +1,1 @@
+import{a as i}from"./chunk-6CSD65Y2-BdQTlvlT.js";import{u as r}from"./organization-service.api-DhsU05UR.js";import{u as s}from"./use-organizations-BgtBqyWL.js";const g=()=>{const{organizationId:o}=r(),a=s(),t=i.useMemo(()=>a.data?.organizations.find(n=>n.id===o),[o,a.data?.organizations]);return{...a,data:t}};export{g as u};

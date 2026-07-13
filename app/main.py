@@ -14,8 +14,9 @@ import os
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
+
+from app.static import SPAStaticFiles
 
 from app.config import Config
 from app.agents import CEOAgent, PlannerAgent, EngineerAgent, DebuggerAgent, QAAgent, SecurityAgent, FinalReviewerAgent
@@ -191,34 +192,11 @@ app.include_router(releases.router)
 app.include_router(chat.router)
 app.include_router(dashboard_router)
 
-# ── Dashboard static files ─────────────────────────────────────────────────
-_static_dir = os.path.join(os.path.dirname(__file__), "dashboard", "static")
-if os.path.isdir(_static_dir):
-    app.mount("/static", StaticFiles(directory=_static_dir), name="static")
-
-
-# ---------------------------------------------------------------------------
-# Root endpoint — serve the dashboard UI
-# ---------------------------------------------------------------------------
-
-_DASHBOARD_HTML: str | None = None
-_DASHBOARD_HTML_PATH = os.path.join(os.path.dirname(__file__), "dashboard_index.html")
-
-
-def _load_dashboard_html() -> str:
-    global _DASHBOARD_HTML
-    if _DASHBOARD_HTML is None:
-        try:
-            with open(_DASHBOARD_HTML_PATH, encoding="utf-8") as f:
-                _DASHBOARD_HTML = f.read()
-        except FileNotFoundError:
-            _DASHBOARD_HTML = "<html><body><h1>Dashboard not found</h1></body></html>"
-    return _DASHBOARD_HTML
-
-
-@app.get("/")
-async def root() -> HTMLResponse:
-    return HTMLResponse(content=_load_dashboard_html(), status_code=200)
+# ── OpenHands frontend (SPA) ────────────────────────────────────────────────
+_frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
+_frontend_dir = os.path.abspath(_frontend_dir)
+if os.path.isdir(_frontend_dir):
+    app.mount("/", SPAStaticFiles(directory=_frontend_dir, html=True), name="frontend")
 
 
 @app.get("/api.json")
