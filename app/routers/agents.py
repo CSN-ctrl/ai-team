@@ -82,8 +82,12 @@ _STATIC_AGENTS = [
 
 
 def _get_agents(app_state) -> list[dict]:
-    """Return agents from app.state if available, otherwise static list."""
     registry = getattr(app_state, "agent_registry", None)
+    assigner = getattr(app_state, "auto_assigner", None)
+    busy_agents: dict[str, str] = {}
+    if assigner is not None:
+        busy_agents = getattr(assigner, "_busy_agents", {})
+
     if registry is not None:
         return [
             {
@@ -92,8 +96,8 @@ def _get_agents(app_state) -> list[dict]:
                 "role": a.__class__.__name__,
                 "model": _model_for_capability(getattr(a, "capability", "")),
                 "capabilities": [a.capability] if a.capability else [],
-                "status": "idle",
-                "current_task_id": None,
+                "status": "busy" if a.id in busy_agents else "idle",
+                "current_task_id": busy_agents.get(a.id),
             }
             for a in registry.values()
         ]
