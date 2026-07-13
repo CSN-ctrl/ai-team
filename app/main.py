@@ -21,7 +21,10 @@ from app.config import Config
 from app.agents import CEOAgent, PlannerAgent, EngineerAgent, DebuggerAgent, QAAgent, SecurityAgent, FinalReviewerAgent
 from app.kanban.board import AsyncKanbanBoard
 from app.llm.client import NIMClient
+from app.llm.intent import IntentClassifier
+from app.models.mode import ConversationManager
 from app.router import ModelRouter
+from app.workers.auto_assigner import AutoAssigner
 
 # ── Routers ────────────────────────────────────────────────────────────────
 
@@ -77,6 +80,15 @@ async def startup() -> None:
     )
     app.state.nim_client = nim_client
 
+    # ── Conversation Manager & Intent Classifier ───────────────────────
+    conv_manager = ConversationManager()
+    app.state.conv_manager = conv_manager
+
+    intent_classifier = IntentClassifier(
+        llm_client=nim_client,
+    )
+    app.state.intent_classifier = intent_classifier
+
     # ── Model Router ───────────────────────────────────────────────────
     router = ModelRouter(
         llm_client=nim_client,
@@ -99,8 +111,18 @@ async def startup() -> None:
     app.state.agent_registry = agents
     app.state.ceo_agent = agents["ceo"]
 
+    # ── AutoAssigner ───────────────────────────────────────────────────
+    assigner = AutoAssigner(
+        board=board,
+        agent_registry=agents,
+        poll_interval=5.0,
+        max_assign_per_cycle=3,
+    )
+    assigner.start()
+    app.state.auto_assigner = assigner
+
     logger.info(
-        "OpenClaw CEO started — board=%s, router.rpm=%d, agents=%d",
+        "OpenClaw CEO started — board=%s, router.rpm=%d, agents=%d, assigner=enabled",
         db_path,
         cfg.nvidia_rpm_limit,
         len(agents),
@@ -117,6 +139,10 @@ async def shutdown() -> None:
     nim_client = getattr(app.state, "nim_client", None)
     if nim_client is not None:
         await nim_client.close()
+
+    assigner = getattr(app.state, "auto_assigner", None)
+    if assigner is not None:
+        await assigner.stop()
 
     logger.info("OpenClaw CEO shut down")
 
