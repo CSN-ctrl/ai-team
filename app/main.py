@@ -14,7 +14,7 @@ import os
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.config import Config
@@ -198,12 +198,31 @@ if os.path.isdir(_static_dir):
 
 
 # ---------------------------------------------------------------------------
-# Root endpoint
+# Root endpoint — serve the dashboard UI
 # ---------------------------------------------------------------------------
+
+_DASHBOARD_HTML: str | None = None
+_DASHBOARD_HTML_PATH = os.path.join(os.path.dirname(__file__), "dashboard_index.html")
+
+
+def _load_dashboard_html() -> str:
+    global _DASHBOARD_HTML
+    if _DASHBOARD_HTML is None:
+        try:
+            with open(_DASHBOARD_HTML_PATH, encoding="utf-8") as f:
+                _DASHBOARD_HTML = f.read()
+        except FileNotFoundError:
+            _DASHBOARD_HTML = "<html><body><h1>Dashboard not found</h1></body></html>"
+    return _DASHBOARD_HTML
 
 
 @app.get("/")
-async def root() -> dict:
+async def root() -> HTMLResponse:
+    return HTMLResponse(content=_load_dashboard_html(), status_code=200)
+
+
+@app.get("/api.json")
+async def api_index() -> dict:
     return {
         "name": "OpenClaw CEO",
         "version": "0.1.0",
