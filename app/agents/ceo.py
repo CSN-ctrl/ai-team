@@ -47,7 +47,7 @@ class CEOAgent(BaseAgent):
             return
         self._stop_event.clear()
         self._task = asyncio.create_task(self._execution_loop())
-        logger.info("CEO executor started")
+        logger.warning("CEO executor started (task=%s)", id(self._task))
 
     async def stop(self) -> None:
         """Stop the execution loop gracefully."""
@@ -116,9 +116,21 @@ class CEOAgent(BaseAgent):
         }
 
         try:
-            # Call the specialist agent
-            result = await agent.execute(input_data)
+            # Call the specialist agent with a timeout
+            result = await asyncio.wait_for(
+                agent.execute(input_data),
+                timeout=90.0,
+            )
             logger.info("Agent %s completed step %s on task %s", agent.id, step_label, task.id)
+        except asyncio.TimeoutError:
+            logger.error("Agent %s timed out on task %s", agent.id, task.id)
+            await self._board.update_task(task.id, {"status": "backlog"})
+            from app.activity import emit as activity_emit
+            activity_emit("task_status", actor=agent.id, task_id=task.id,
+                          task_title=task.title,
+                          from_status="in_progress", to_status="backlog",
+                          detail=f"{agent.id} timed out on {step_label}, retrying")
+            return
         except Exception as exc:
             logger.error("Agent %s failed on task %s: %s", agent.id, task.id, exc)
             # Mark back to backlog so it can be retried

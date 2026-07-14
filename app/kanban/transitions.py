@@ -16,9 +16,9 @@ from typing import Dict, List
 VALID_TRANSITIONS: Dict[str, List[str]] = {
     # forward flow
     "backlog": ["ready", "cancelled"],
-    "ready": ["planning", "cancelled"],
+    "ready": ["planning", "in_progress", "cancelled"],
     "planning": ["in_progress"],
-    "in_progress": ["review", "done"],
+    "in_progress": ["review", "done", "backlog"],       # backlog ← agent timeout/failure
     "review": ["qa", "in_progress"],          # in_progress ← QA/security failed
     "qa": ["security", "in_progress"],         # in_progress ← QA itself failed
     "security": ["approval", "in_progress"],   # in_progress ← security failed
