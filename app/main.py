@@ -17,7 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 
 from app.config import Config
-from app.agents import CEOAgent, PlannerAgent, EngineerAgent, DebuggerAgent, QAAgent, SecurityAgent, FinalReviewerAgent
+from app.agents import CEOAgent, PlannerAgent, EngineerAgent, DebuggerAgent, QAAgent, SecurityAgent, FinalReviewerAgent, ResearcherAgent, DeveloperAgent, HermesAgent
 from app.kanban.board import AsyncKanbanBoard
 from app.llm.client import NIMClient
 from app.llm.intent import IntentClassifier
@@ -107,6 +107,9 @@ async def startup() -> None:
         "qa": QAAgent("qa", "QA Lead", router),
         "security": SecurityAgent("sec", "Security Reviewer", router),
         "reviewer": FinalReviewerAgent("rev", "Final Reviewer", router),
+        "researcher": ResearcherAgent("researcher", "Research Expert", router),
+        "dev-exp": DeveloperAgent("dev-exp", "Development Expert", router),
+        "hermes": HermesAgent("hermes", "Hermes", router),
     }
     app.state.agent_registry = agents
     app.state.ceo_agent = agents["ceo"]

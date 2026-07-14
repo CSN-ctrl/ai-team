@@ -24,6 +24,9 @@ ROUTING_TABLE: dict[str, dict[str, str | None]] = {
     "security":      {"primary": "nvidia/llama-3.3-nemotron-super-49b-v1",  "fallback": "z-ai/glm-5.2"},
     "final_review":  {"primary": "nvidia/llama-3.1-nemotron-ultra-253b-v1", "fallback": "z-ai/glm-5.2"},
     "vision":        {"primary": "minimaxai/minimax-m3",                    "fallback": None},
+    "research":      {"primary": "qwen/qwen3-next-80b-a3b-instruct",        "fallback": "deepseek-ai/deepseek-v4-flash"},
+    "development":   {"primary": "qwen/qwen3-next-80b-a3b-instruct",        "fallback": "deepseek-ai/deepseek-v4-flash"},
+    "coordination":  {"primary": "z-ai/glm-5.2",                            "fallback": "qwen/qwen3-next-80b-a3b-instruct"},
 }
 
 # ---------------------------------------------------------------------------

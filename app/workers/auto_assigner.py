@@ -31,6 +31,9 @@ _TASK_TYPE_TO_CAPABILITY: dict[str, str] = {
     "debugging": "debugging",
     "refactoring": "refactoring",
     "final_review": "final_review",
+    "research": "research",
+    "development": "development",
+    "coordination": "coordination",
 }
 
 # Agent capability → which agents can handle it
@@ -42,6 +45,9 @@ _CAPABILITY_TO_AGENTS: dict[str, list[str]] = {
     "security": ["sec"],
     "final_review": ["rev"],
     "refactoring": ["eng-a", "eng-b"],
+    "research": ["researcher"],
+    "development": ["dev-exp"],
+    "coordination": ["hermes"],
 }
 
 
