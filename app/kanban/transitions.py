@@ -18,7 +18,7 @@ VALID_TRANSITIONS: Dict[str, List[str]] = {
     "backlog": ["ready", "cancelled"],
     "ready": ["planning", "cancelled"],
     "planning": ["in_progress"],
-    "in_progress": ["review"],
+    "in_progress": ["review", "done"],
     "review": ["qa", "in_progress"],          # in_progress ← QA/security failed
     "qa": ["security", "in_progress"],         # in_progress ← QA itself failed
     "security": ["approval", "in_progress"],   # in_progress ← security failed

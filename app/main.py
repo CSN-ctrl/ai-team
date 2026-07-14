@@ -112,11 +112,15 @@ async def startup() -> None:
         "dev-exp": DeveloperAgent("dev-exp", "Dev Expert", router),
     }
     app.state.agent_registry = agents
-    app.state.ceo_agent = agents["ceo"]
+    ceo_agent = agents["ceo"]
+    app.state.ceo_agent = ceo_agent
 
     # ── Workflow Engine ────────────────────────────────────────────────
     workflow_engine = WorkflowEngine()
     app.state.workflow_engine = workflow_engine
+
+    # ── Inject dependencies into CEO ───────────────────────────────────
+    ceo_agent.inject(board, agents, workflow_engine)
 
     # ── AutoAssigner ───────────────────────────────────────────────────
     assigner = AutoAssigner(
@@ -129,8 +133,11 @@ async def startup() -> None:
     assigner.start()
     app.state.auto_assigner = assigner
 
+    # ── CEO Executor — runs after assigner is ready ────────────────────
+    ceo_agent.start()
+
     logger.info(
-        "OpenClaw CEO started — board=%s, router.rpm=%d, agents=%d, workflows=%d, assigner=enabled",
+        "OpenClaw CEO started — board=%s, router.rpm=%d, agents=%d, workflows=%d, assigner=enabled, executor=enabled",
         db_path,
         cfg.nvidia_rpm_limit,
         len(agents),
@@ -152,6 +159,10 @@ async def shutdown() -> None:
     assigner = getattr(app.state, "auto_assigner", None)
     if assigner is not None:
         await assigner.stop()
+
+    ceo = getattr(app.state, "ceo_agent", None)
+    if ceo is not None:
+        await ceo.stop()
 
     logger.info("OpenClaw CEO shut down")
 
