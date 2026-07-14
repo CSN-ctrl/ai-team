@@ -44,7 +44,7 @@ _CAPABILITY_TO_AGENTS: dict[str, list[str]] = {
     "security": ["sec"],
     "final_review": ["rev"],
     "refactoring": ["eng-a", "eng-b"],
-    "research": ["researcher"],
+    "research": ["hermes"],
     "development": ["dev-exp"],
 }
 
