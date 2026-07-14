@@ -124,7 +124,7 @@ class CEOAgent(BaseAgent):
             logger.info("Agent %s completed step %s on task %s", agent.id, step_label, task.id)
         except asyncio.TimeoutError:
             logger.error("Agent %s timed out on task %s", agent.id, task.id)
-            await self._board.update_task(task.id, {"status": "backlog"})
+            await self._board.update_task(task.id, {"status": "backlog", "assignee": None})
             from app.activity import emit as activity_emit
             activity_emit("task_status", actor=agent.id, task_id=task.id,
                           task_title=task.title,
@@ -133,8 +133,7 @@ class CEOAgent(BaseAgent):
             return
         except Exception as exc:
             logger.error("Agent %s failed on task %s: %s", agent.id, task.id, exc)
-            # Mark back to backlog so it can be retried
-            await self._board.update_task(task.id, {"status": "backlog"})
+            await self._board.update_task(task.id, {"status": "backlog", "assignee": None})
             from app.activity import emit as activity_emit
             activity_emit("task_status", actor=agent.id, task_id=task.id,
                           task_title=task.title,

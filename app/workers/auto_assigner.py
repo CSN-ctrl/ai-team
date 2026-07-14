@@ -104,13 +104,14 @@ class AutoAssigner:
                 pass
 
     async def _tick(self) -> None:
-        idle_agents = self._get_idle_agents()
-        if not idle_agents:
-            return
-
-        # 2. Find unassigned tasks to work on
+        # 1. Find unassigned tasks (also releases orphaned agents from _busy_agents)
         candidates = await self._find_candidates()
         if not candidates:
+            return
+
+        # 2. Compute idle agents AFTER _find_candidates releases orphaned ones
+        idle_agents = self._get_idle_agents()
+        if not idle_agents:
             return
 
         # 3. Assign up to max_per_cycle
@@ -144,6 +145,12 @@ class AutoAssigner:
         for task in backlog + ready:
             if task.assignee:
                 continue
+            # Release any busy agent that was working on this task
+            # (e.g. after CEO timeout/failure moved it back to backlog)
+            for agent_id, busy_task_id in list(self._busy_agents.items()):
+                if busy_task_id == task.id:
+                    del self._busy_agents[agent_id]
+                    logger.info("Released agent %s from backlog task %s", agent_id, task.id)
             # Auto-classify legacy tasks that have no workflow
             if not task.workflow_type:
                 wf = classify_workflow(task.title, task.description)
@@ -276,6 +283,18 @@ class AutoAssigner:
                 del self._busy_agents[task.assignee]
                 activity_emit("agent_idle", actor=task.assignee, task_id=task.id, task_title=task.title,
                               detail=f"{task.assignee} released from cancelled {task.title}")
+
+        # Release agents from backlog tasks whose assignee was cleared (e.g. after timeout/failure)
+        backlog = await self._board.list_tasks(status="backlog")
+        for task in backlog:
+            if not task.assignee:
+                # Check if any busy agent was assigned to this task
+                for agent_id, busy_task_id in list(self._busy_agents.items()):
+                    if busy_task_id == task.id:
+                        del self._busy_agents[agent_id]
+                        activity_emit("agent_idle", actor=agent_id, task_id=task.id, task_title=task.title,
+                                      detail=f"{agent_id} released from backlog task {task.title}")
+                        released.append(task)
 
         # Also handle tasks that are in_progress but whose agent went idle (lost tasks)
         for task in in_progress:
