@@ -1,1 +1,0 @@
-import{a as C}from"./chunk-6CSD65Y2-BdQTlvlT.js";const L=e=>C.createElement("img",{src:"/logo.jpg",alt:"AI Team",width:40,height:40,style:{objectFit:"contain",borderRadius:"4px"},...e});export{L as S};

@@ -1,1 +1,0 @@
-import{u as s,a as n}from"./use-config-D_NEEMfX.js";import{u as r,o as t}from"./organization-service.api-DhsU05UR.js";const g=()=>{const{data:a}=s(),{organizationId:e}=r(),o=a?.app_mode==="saas";return n({queryKey:["organizations",e,"me"],queryFn:()=>t.getMe({orgId:e}),staleTime:1e3*60*5,enabled:o&&!!e})};export{g as u};

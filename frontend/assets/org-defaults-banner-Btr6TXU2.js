@@ -1,1 +1,0 @@
-import{j as t}from"./chunk-6CSD65Y2-BdQTlvlT.js";import{I as s}from"./declaration-uKRp084C.js";import{u as e}from"./useTranslation-_wGcsDQ2.js";function i(){const{t:r}=e();return t.jsx("div",{className:"flex flex-col gap-3",children:t.jsx("p",{className:"text-sm text-tertiary-alt",children:r(s.SETTINGS$ORG_DEFAULTS_INFO)})})}export{i as O};

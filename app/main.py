@@ -16,8 +16,6 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 
-from app.static import SPAStaticFiles
-
 from app.config import Config
 from app.agents import CEOAgent, PlannerAgent, EngineerAgent, DebuggerAgent, QAAgent, SecurityAgent, FinalReviewerAgent
 from app.kanban.board import AsyncKanbanBoard

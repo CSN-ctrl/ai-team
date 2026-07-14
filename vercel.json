@@ -1,7 +1,7 @@
 {
   "buildCommand": "pip install -r requirements.txt",
   "outputDirectory": ".",
-  "framework": null,
+  "framework": "other",
   "functions": {
     "api/index.py": {
       "maxDuration": 60,

@@ -1,1 +1,0 @@
-const t=/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,l=a=>t.test(a),o=a=>a.every(s=>l(s)),i=a=>{const s=a.map(e=>e.toLowerCase());return new Set(s).size!==s.length};export{o as a,i as h,l as i};
