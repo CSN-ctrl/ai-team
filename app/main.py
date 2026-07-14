@@ -14,7 +14,7 @@ import os
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from app.static import SPAStaticFiles
 
@@ -30,6 +30,7 @@ from app.workers.auto_assigner import AutoAssigner
 # ── Routers ────────────────────────────────────────────────────────────────
 
 from app.routers import (
+    activity,
     agents,
     approvals,
     chat,
@@ -183,6 +184,7 @@ async def internal_error_handler(request: Request, exc: Exception) -> JSONRespon
 # Include routers
 # ---------------------------------------------------------------------------
 
+app.include_router(activity.router)
 app.include_router(health.router)
 app.include_router(goals.router)
 app.include_router(tasks.router)
@@ -192,11 +194,14 @@ app.include_router(releases.router)
 app.include_router(chat.router)
 app.include_router(dashboard_router)
 
-# ── OpenHands frontend (SPA) ────────────────────────────────────────────────
-_frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
-_frontend_dir = os.path.abspath(_frontend_dir)
-if os.path.isdir(_frontend_dir):
-    app.mount("/", SPAStaticFiles(directory=_frontend_dir, html=True), name="frontend")
+# ── Discord-like dashboard at root ──────────────────────────────────────────
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_DASHBOARD_HTML = os.path.join(_HERE, "static", "dashboard.html")
+
+
+@app.get("/")
+async def root() -> FileResponse:
+    return FileResponse(_DASHBOARD_HTML)
 
 
 @app.get("/api.json")
@@ -206,6 +211,7 @@ async def api_index() -> dict:
         "version": "0.1.0",
         "description": "Orchestration server for AI software development agents",
         "endpoints": {
+            "activity": "/v1/activity",
             "health": "/v1/health",
             "goals": "/v1/goals",
             "tasks": "/v1/tasks",

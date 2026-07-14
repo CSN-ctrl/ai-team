@@ -6,6 +6,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel
 
+from app.activity import emit as activity_emit
 from app.kanban.board import AsyncKanbanBoard
 from app.models.task import Task, TaskStatus
 
@@ -49,6 +50,8 @@ async def create_task(body: CreateTaskRequest, request: Request) -> dict:
         priority=body.priority,
     )
     created = await board.create_task(task)
+    activity_emit("task_created", actor="user", task_id=created.id, task_title=created.title,
+                  detail=f"Task \"{created.title}\" created in backlog")
     return created.dict()
 
 
@@ -79,6 +82,15 @@ async def update_task(task_id: str, body: dict, request: Request) -> dict:
     if updated is None:
         raise HTTPException(status_code=404, detail=f"Task {task_id!r} not found")
 
+    if "status" in body:
+        old_status = body.get("_old_status", "")
+        activity_emit("task_status", actor="user", task_id=task_id, task_title=updated.title,
+                      from_status=old_status, to_status=body["status"],
+                      detail=f"Status changed: {old_status} → {body['status']}")
+    if "assignee" in body and body["assignee"]:
+        activity_emit("task_assigned", actor=body["assignee"], task_id=task_id, task_title=updated.title,
+                      detail=f"Manually assigned to {body['assignee']}")
+
     return updated.dict()
 
 
@@ -95,4 +107,6 @@ async def assign_task(body: AssignTaskRequest, request: Request) -> dict:
             status_code=404,
             detail=f"Task {body.task_id!r} not found",
         )
+    activity_emit("task_assigned", actor=body.assignee, task_id=body.task_id, task_title=updated.title,
+                  detail=f"Assigned to {body.assignee}")
     return updated.dict()

@@ -12,6 +12,7 @@ import asyncio
 import logging
 from typing import Optional
 
+from app.activity import emit as activity_emit
 from app.agents.base import BaseAgent
 from app.kanban.board import AsyncKanbanBoard
 from app.models.task import Task, TaskStatus
@@ -222,12 +223,26 @@ class AutoAssigner:
         if current == "backlog":
             await self._board.update_task(task.id, {"assignee": agent_id, "status": "ready"})
             await self._board.update_task(task.id, {"status": "planning"})
+            activity_emit("task_assigned", actor=agent_id, task_id=task.id, task_title=task.title,
+                          detail=f"Assigned {agent_id} (backlog→planning)")
+            activity_emit("task_status", actor="assigner", task_id=task.id, task_title=task.title,
+                          from_status="backlog", to_status="planning",
+                          detail=f"Auto-progressed to planning for {agent_id}")
         elif current == "ready":
             await self._board.update_task(task.id, {"assignee": agent_id, "status": "planning"})
+            activity_emit("task_assigned", actor=agent_id, task_id=task.id, task_title=task.title,
+                          detail=f"Assigned {agent_id} (ready→planning)")
+            activity_emit("task_status", actor="assigner", task_id=task.id, task_title=task.title,
+                          from_status="ready", to_status="planning",
+                          detail=f"Auto-progressed to planning for {agent_id}")
         else:
             await self._board.update_task(task.id, {"assignee": agent_id})
+            activity_emit("task_assigned", actor=agent_id, task_id=task.id, task_title=task.title,
+                          detail=f"Assigned {agent_id}")
 
         self._busy_agents[agent_id] = task.id
+        activity_emit("agent_busy", actor=agent_id, task_id=task.id, task_title=task.title,
+                      detail=f"{agent_id} started working on {task.title}")
 
     # ── Completion monitoring ────────────────────────────────────────────
 
@@ -238,10 +253,14 @@ class AutoAssigner:
             if task.assignee and task.assignee in self._busy_agents:
                 del self._busy_agents[task.assignee]
                 released.append(task)
+                activity_emit("agent_idle", actor=task.assignee, task_id=task.id, task_title=task.title,
+                              detail=f"{task.assignee} completed {task.title}")
 
         cancelled = await self._board.list_tasks(status="cancelled")
         for task in cancelled:
             if task.assignee and task.assignee in self._busy_agents:
                 del self._busy_agents[task.assignee]
+                activity_emit("agent_idle", actor=task.assignee, task_id=task.id, task_title=task.title,
+                              detail=f"{task.assignee} released from cancelled {task.title}")
 
         return released
