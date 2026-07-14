@@ -737,7 +737,8 @@ async function fetchActivity() {
 async function fetchAgents() {
   try {
     const data = await api('/v1/agents');
-    STATE.agents = (data.agents || []).map(a => ({
+    const agentList = Array.isArray(data) ? data : (data.agents || []);
+    STATE.agents = agentList.map(a => ({
       ...a,
       status: a.status || (a.current_task_id ? 'busy' : 'idle'),
     }));
@@ -758,7 +759,7 @@ async function fetchTasks() {
 async function fetchApprovals() {
   try {
     const data = await api('/v1/approvals?status=pending');
-    STATE.approvals = data.approvals || [];
+    STATE.approvals = Array.isArray(data) ? data : (data.approvals || []);
     const count = STATE.approvals.length;
     const badge = document.getElementById('approval-count');
     if (count > 0) { badge.textContent = count; badge.style.display = ''; }
