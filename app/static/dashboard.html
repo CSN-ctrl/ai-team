@@ -305,6 +305,23 @@ const AGENT_NAMES = {
   user:'You', assigner:'Auto Assigner',
 };
 
+const AGENT_ROLES = {
+  ceo:'Orchestrator — routes tasks, makes decisions',
+  planner:'Strategic planning & architecture design',
+  'eng-a':'Frontend & backend implementation',
+  'eng-b':'Backend & API implementation',
+  dbg:'Bug diagnosis & root-cause analysis',
+  qa:'Test coverage & quality verification',
+  sec:'Security audit & vulnerability scanning',
+  rev:'Final review & release approval',
+};
+
+const AGENT_ICONS = {
+  ceo:'👑', planner:'📐', 'eng-a':'⚡', 'eng-b':'🔧',
+  dbg:'🔍', qa:'🧪', sec:'🛡️', rev:'✅',
+  user:'👤', assigner:'🤖',
+};
+
 const EVENT_ICONS = {
   task_created:'📋', task_assigned:'📎', task_status:'🔄',
   agent_busy:'🔴', agent_idle:'🟢', assigner_sweep:'🧹',
@@ -358,10 +375,10 @@ function renderActivity(events) {
     const initial = author.charAt(0).toUpperCase();
 
     html += `<div class="activity-message">
-      <div class="activity-avatar" style="background:${color}">${initial}</div>
+      <div class="activity-avatar" style="background:${color};cursor:pointer" onclick="selectAgent('${e.actor}')">${initial}</div>
       <div class="activity-body">
         <div class="activity-header">
-          <span class="activity-author" style="color:${color}">${author}</span>
+          <span class="activity-author" style="color:${color};cursor:pointer" onclick="selectAgent('${e.actor}')">${author}</span>
           <span class="activity-time">${ago(e.timestamp)}</span>
         </div>`;
 
@@ -499,7 +516,7 @@ function renderHealth(health) {
     </div>`;
 }
 
-// ── Render Members ───────────────────────────────────────────────────
+// ── Render Members (clickable) ───────────────────────────────────────
 function renderMembers() {
   const el = document.getElementById('member-scroll');
   const busy = STATE.agents.filter(a => a.status === 'busy');
@@ -513,7 +530,7 @@ function renderMembers() {
     for (const a of busy) {
       const color = AGENT_COLORS[a.id] || '#5865f2';
       const name = AGENT_NAMES[a.id] || a.name || a.id;
-      html += `<div class="member-item">
+      html += `<div class="member-item" data-agent-id="${a.id}" onclick="selectAgent('${a.id}')">
         <div class="member-avatar" style="background:${color}"><span class="status-ring" style="background:var(--status-online)"></span>${name.charAt(0)}</div>
         <div class="member-info">
           <div class="member-name">${name}</div>
@@ -530,7 +547,7 @@ function renderMembers() {
     for (const a of idle) {
       const color = AGENT_COLORS[a.id] || '#5865f2';
       const name = AGENT_NAMES[a.id] || a.name || a.id;
-      html += `<div class="member-item">
+      html += `<div class="member-item" data-agent-id="${a.id}" onclick="selectAgent('${a.id}')">
         <div class="member-avatar" style="background:${color}"><span class="status-ring" style="background:var(--status-idle)"></span>${name.charAt(0)}</div>
         <div class="member-info">
           <div class="member-name">${name}</div>
@@ -544,8 +561,146 @@ function renderMembers() {
   el.innerHTML = html;
 }
 
+// ── Agent selection ──────────────────────────────────────────────────
+function selectAgent(agentId) {
+  STATE.selectedAgent = agentId;
+  STATE.activeChannel = `agent-${agentId}`;
+  document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
+  const chEl = document.getElementById(`ch-${agentId}`);
+  if (chEl) chEl.classList.add('active');
+  document.getElementById('channel-title').textContent = AGENT_NAMES[agentId] || agentId;
+  document.getElementById('channel-topic').textContent = AGENT_ROLES[agentId] || '';
+  document.getElementById('member-sidebar').classList.add('visible');
+  renderAgentDetail(agentId);
+}
+
+function renderAgentDetail(agentId) {
+  const agent = STATE.agents.find(a => a.id === agentId);
+  if (!agent) return;
+  const color = AGENT_COLORS[agentId] || '#5865f2';
+  const name = AGENT_NAMES[agentId] || agent.name || agentId;
+  const icon = AGENT_ICONS[agentId] || '🤖';
+  const role = AGENT_ROLES[agentId] || agent.capability || '';
+  const busy = agent.status === 'busy';
+  const isActiveFilter = STATE.activeFilter === agentId;
+
+  // Filter activity to this agent
+  const agentActivity = STATE.activity.filter(e =>
+    e.actor === agentId || e.detail?.includes(agentId)
+  ).slice(0, 30);
+
+  // Find current task
+  const currentTask = STATE.tasks.find(t => t.id === agent.current_task_id || t.assignee === agentId);
+  const recentTasks = STATE.tasks.filter(t => t.assignee === agentId).slice(0, 5);
+
+  // Find recent handoffs (tasks this agent was involved in)
+  const handoffs = STATE.activity.filter(e =>
+    e.actor !== agentId && e.detail?.includes(agentId)
+  ).slice(0, 10);
+
+  const el = document.getElementById('main-content');
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- Agent Profile Card -->
+      <div style="background:var(--bg-secondary);border-radius:12px;padding:20px;display:flex;gap:20px;align-items:center">
+        <div class="activity-avatar" style="width:64px;height:64px;font-size:28px;background:${color}">${icon}</div>
+        <div style="flex:1">
+          <div style="font-size:20px;font-weight:600;color:var(--header-primary);display:flex;align-items:center;gap:8px">
+            ${name}
+            <span style="font-size:12px;padding:2px 10px;border-radius:8px;background:${busy ? 'var(--status-online)' : 'var(--status-idle)'};color:#fff">${busy ? 'WORKING' : 'AVAILABLE'}</span>
+          </div>
+          <div style="color:var(--text-muted);font-size:14px;margin-top:4px">${role}</div>
+          ${currentTask ? `<div style="margin-top:8px;padding:8px 12px;background:var(--bg-primary);border-radius:8px;display:flex;align-items:center;gap:8px">
+            <span style="font-size:10px">📋</span>
+            <span style="color:var(--text-normal);font-size:13px"><strong>Current task:</strong> ${currentTask.title}</span>
+            <span style="margin-left:auto;font-size:11px;padding:2px 6px;border-radius:4px;background:var(--brand);color:#fff">${currentTask.status?.value || currentTask.status || '?'}</span>
+          </div>` : '<div style="margin-top:8px;color:var(--text-muted);font-size:13px">No active task</div>'}
+        </div>
+        <div style="text-align:right;font-size:13px;color:var(--text-muted);flex-shrink:0">
+          <div>ID: ${agentId}</div>
+          <div>Tasks: ${recentTasks.length}</div>
+          <div>Events: ${agentActivity.length}</div>
+        </div>
+      </div>
+
+      <!-- Activity Log -->
+      <div style="background:var(--bg-secondary);border-radius:12px;padding:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <h3 style="font-size:14px;font-weight:600;color:var(--header-secondary);text-transform:uppercase;letter-spacing:.5px">Interaction Log</h3>
+          <div style="display:flex;gap:6px">
+            <button class="filter-btn active" data-filter="all" style="padding:4px 10px;border:none;border-radius:6px;font-size:12px;cursor:pointer;background:var(--brand);color:#fff" onclick="setFilter('all')">All</button>
+            <button class="filter-btn" data-filter="outgoing" style="padding:4px 10px;border:none;border-radius:6px;font-size:12px;cursor:pointer;background:var(--bg-hover);color:var(--text-muted)" onclick="setFilter('outgoing')">Outgoing</button>
+            <button class="filter-btn" data-filter="incoming" style="padding:4px 10px;border:none;border-radius:6px;font-size:12px;cursor:pointer;background:var(--bg-hover);color:var(--text-muted)" onclick="setFilter('incoming')">Incoming</button>
+          </div>
+        </div>
+        <div id="agent-activity-log">
+          ${agentActivity.length === 0 ? '<div style="padding:20px;text-align:center;color:var(--text-muted)">No activity recorded yet for this agent.</div>' :
+          agentActivity.map(e => {
+            const icon = EVENT_ICONS[e.kind] || '📌';
+            const time = ago(e.timestamp);
+            let detail = '';
+            if (e.kind === 'task_assigned' && e.actor === agentId) {
+              detail = `<span style="color:var(--text-positive)">→ Assigned to work on</span> <strong>${e.task_title}</strong>`;
+            } else if (e.kind === 'task_assigned' && e.detail?.includes(agentId)) {
+              detail = `<span style="color:var(--text-link)">← Received task</span> <strong>${e.task_title}</strong>`;
+            } else if (e.kind === 'task_status') {
+              detail = `<strong>${e.task_title}</strong> <span class="from">${e.from_status}</span> <span class="arrow">→</span> <span class="to">${e.to_status}</span>`;
+            } else if (e.kind === 'agent_busy') {
+              detail = `Started working`;
+            } else if (e.kind === 'agent_idle') {
+              detail = `Completed work`;
+            } else {
+              detail = e.detail || e.kind;
+            }
+            return `<div class="activity-message" style="animation:none">
+              <div class="activity-avatar" style="width:32px;height:32px;font-size:14px;background:${color}">${icon}</div>
+              <div class="activity-body">
+                <div class="activity-header">
+                  <span class="activity-author" style="color:${color};font-size:13px">${name}</span>
+                  <span class="activity-time">${time}</span>
+                </div>
+                <div class="activity-detail" style="font-size:13px">${detail}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Handoffs (other agents interacting with this one) -->
+      ${handoffs.length > 0 ? `<div style="background:var(--bg-secondary);border-radius:12px;padding:16px">
+        <h3 style="font-size:14px;font-weight:600;color:var(--header-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">↔ Agent Handoffs</h3>
+        ${handoffs.map(e => {
+          const fromColor = AGENT_COLORS[e.actor] || '#5865f2';
+          const fromName = AGENT_NAMES[e.actor] || e.actor;
+          return `<div class="activity-message" style="animation:none">
+            <div class="activity-avatar" style="width:32px;height:32px;font-size:14px;background:${fromColor}">${(AGENT_ICONS[e.actor] || '🤖')}</div>
+            <div class="activity-body">
+              <div class="activity-header">
+                <span class="activity-author" style="color:${fromColor};font-size:13px">${fromName}</span>
+                <span class="activity-time">${ago(e.timestamp)}</span>
+              </div>
+              <div class="activity-detail" style="font-size:13px;cursor:pointer" onclick="selectAgent('${e.actor}')">${e.detail || e.kind} <span style="color:var(--text-link);font-size:12px">→ view ${e.actor}</span></div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>` : ''}
+    </div>`;
+  
+  // Scroll to top
+  el.scrollTop = 0;
+}
+
+function setFilter(filter) {
+  STATE.activeFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.style.background = b.dataset.filter === filter ? 'var(--brand)' : 'var(--bg-hover)';
+    b.style.color = b.dataset.filter === filter ? '#fff' : 'var(--text-muted)';
+  });
+}
+
 // ── Channel switching ────────────────────────────────────────────────
 function switchChannel(channel) {
+  STATE.selectedAgent = null;
   STATE.activeChannel = channel;
   document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
   const chEl = document.getElementById(`ch-${channel}`);
@@ -575,6 +730,7 @@ async function fetchActivity() {
     const data = await api('/v1/activity?limit=50');
     STATE.activity = data.events || [];
     if (STATE.activeChannel === 'activity') renderActivity(STATE.activity);
+    else if (STATE.selectedAgent) renderAgentDetail(STATE.selectedAgent);
   } catch (e) { console.error('activity fetch error', e); }
 }
 
@@ -587,6 +743,7 @@ async function fetchAgents() {
     }));
     renderMembers();
     renderAgentChannels();
+    if (STATE.selectedAgent) renderAgentDetail(STATE.selectedAgent);
   } catch (e) { console.error('agents fetch error', e); }
 }
 
@@ -594,6 +751,7 @@ async function fetchTasks() {
   try {
     STATE.tasks = await api('/v1/tasks');
     if (STATE.activeChannel === 'kanban') renderKanban(STATE.tasks);
+    else if (STATE.selectedAgent) renderAgentDetail(STATE.selectedAgent);
   } catch (e) { console.error('tasks fetch error', e); }
 }
 
@@ -627,7 +785,7 @@ function renderAgentChannels() {
     const color = AGENT_COLORS[a.id] || '#5865f2';
     const name = AGENT_NAMES[a.id] || a.name || a.id;
     const busy = a.status === 'busy';
-    return `<div class="channel-item" style="padding-left:16px">
+    return `<div class="channel-item" style="padding-left:16px" data-agent-id="${a.id}" onclick="selectAgent('${a.id}')" title="Click to view ${name} details">
       <span style="width:8px;height:8px;border-radius:50%;background:${busy ? 'var(--status-online)' : 'var(--status-idle)'};flex-shrink:0"></span>
       <span class="channel-name">${name}</span>
       ${busy ? '<span style="font-size:11px;color:var(--text-muted)">working</span>' : ''}
