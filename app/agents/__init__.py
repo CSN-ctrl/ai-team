@@ -8,7 +8,6 @@ from app.agents.security import SecurityAgent
 from app.agents.reviewer import FinalReviewerAgent
 from app.agents.researcher import ResearcherAgent
 from app.agents.developer import DeveloperAgent
-from app.agents.hermes import HermesAgent
 
 __all__ = [
     "BaseAgent",
@@ -21,5 +20,4 @@ __all__ = [
     "FinalReviewerAgent",
     "ResearcherAgent",
     "DeveloperAgent",
-    "HermesAgent",
 ]

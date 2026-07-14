@@ -332,7 +332,6 @@ html,body{height:100%;background:var(--bg-tertiary);color:var(--text-normal);fon
           <option value="planning">📐 Planning</option>
           <option value="research">📚 Research</option>
           <option value="development">🔧 Development</option>
-          <option value="coordination">⚡ Coordination</option>
           <option value="qa">🧪 QA / Testing</option>
           <option value="security">🛡️ Security</option>
           <option value="debugging">🔍 Debugging</option>
@@ -366,14 +365,14 @@ const STATE = {
 const AGENT_COLORS = {
   ceo:'#5865f2', planner:'#9b59b6', 'eng-a':'#3498db', 'eng-b':'#1abc9c',
   dbg:'#e67e22', qa:'#2ecc71', sec:'#e74c3c', rev:'#95a5a6',
-  researcher:'#00bcd4', 'dev-exp':'#ff9800', hermes:'#e91e63',
+  researcher:'#00bcd4', 'dev-exp':'#ff9800',
   user:'#5865f2', assigner:'#f1c40f',
 };
 
 const AGENT_NAMES = {
   ceo:'CEO', planner:'Planner', 'eng-a':'Engineer A', 'eng-b':'Engineer B',
   dbg:'Debugger', qa:'QA Lead', sec:'Security', rev:'Reviewer',
-  researcher:'Research Expert', 'dev-exp':'Development Expert', hermes:'Hermes',
+  researcher:'Hermes Research', 'dev-exp':'Hermes Dev',
   user:'You', assigner:'Auto Assigner',
 };
 
@@ -386,15 +385,14 @@ const AGENT_ROLES = {
   qa:'Test coverage & quality verification',
   sec:'Security audit & vulnerability scanning',
   rev:'Final review & release approval',
-  researcher:'Codebase research & solution discovery',
-  'dev-exp':'Feature implementation & bug fixes',
-  hermes:'Messenger — coordination & synthesis',
+  researcher:'R&D — codebase research & solution discovery',
+  'dev-exp':'R&D — feature implementation & bug fixes',
 };
 
 const AGENT_ICONS = {
   ceo:'👑', planner:'📐', 'eng-a':'⚡', 'eng-b':'🔧',
   dbg:'🔍', qa:'🧪', sec:'🛡️', rev:'✅',
-  researcher:'📚', 'dev-exp':'💻', hermes:'⚡',
+  researcher:'📚', 'dev-exp':'💻',
   user:'👤', assigner:'🤖',
 };
 

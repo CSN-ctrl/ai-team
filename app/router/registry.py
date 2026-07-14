@@ -26,7 +26,6 @@ ROUTING_TABLE: dict[str, dict[str, str | None]] = {
     "vision":        {"primary": "minimaxai/minimax-m3",                    "fallback": None},
     "research":      {"primary": "qwen/qwen3-next-80b-a3b-instruct",        "fallback": "deepseek-ai/deepseek-v4-flash"},
     "development":   {"primary": "qwen/qwen3-next-80b-a3b-instruct",        "fallback": "deepseek-ai/deepseek-v4-flash"},
-    "coordination":  {"primary": "z-ai/glm-5.2",                            "fallback": "qwen/qwen3-next-80b-a3b-instruct"},
 }
 
 # ---------------------------------------------------------------------------
