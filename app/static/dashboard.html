@@ -316,22 +316,14 @@ html,body{height:100%;background:var(--bg-tertiary);color:var(--text-normal);fon
     <div class="modal-body">
       <div class="modal-field">
         <label>Title *</label>
-        <input type="text" id="task-title" placeholder="What needs to be done?" autofocus>
-      </div>
-      <div class="modal-field">
-        <label>Workflow Pipeline</label>
-        <select id="task-workflow">
-          <option value="research_dev">📡 R&D Pipeline (Hermes → Dev → QA → Review → CEO)</option>
-          <option value="feature">🏗️ Feature Pipeline (Plan → Code → Debug → QA → Security → Review → CEO)</option>
-          <option value="bugfix">🐛 Bugfix Pipeline (Diagnose → Fix → Verify → Review)</option>
-          <option value="security_review">🛡️ Security Pipeline (Audit → Remediate → Re-audit → Review)</option>
-          <option value="quick">⚡ Quick Pipeline (Implement → Review)</option>
-        </select>
+        <input type="text" id="task-title" placeholder="What needs to be done? (system auto-routes by keywords)" autofocus>
       </div>
       <div class="modal-field">
         <label>Description</label>
-        <textarea id="task-desc" placeholder="Describe the task in detail..."></textarea>
+        <textarea id="task-desc" placeholder="Describe the task — security-related? Bug? Feature? Research? We'll route it to the right pipeline..."></textarea>
       </div>
+      <div class="modal-field">
+        <label>Priority</label>
         <select id="task-priority">
           <option value="1">🔴 Critical (P1)</option>
           <option value="2" selected>🟡 High (P2)</option>
@@ -938,7 +930,6 @@ async function submitTask() {
   const title = document.getElementById('task-title').value.trim();
   const desc = document.getElementById('task-desc').value.trim();
   const priority = parseInt(document.getElementById('task-priority').value);
-  const workflowType = document.getElementById('task-workflow').value;
 
   if (!title) {
     document.getElementById('task-modal-error').style.display = 'block';
@@ -952,7 +943,7 @@ async function submitTask() {
   modalBtn.textContent = 'Creating...';
 
   try {
-    const body = { title, description: desc, priority, workflow_type: workflowType };
+    const body = { title, description: desc, priority };
     const res = await fetch('/v1/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -966,11 +957,13 @@ async function submitTask() {
     // Refresh tasks and activity
     fetchTasks();
     fetchActivity();
-    // Show a brief success notification
+    // Show auto-route notification
+    const wf = task.workflow_type || 'feature';
+    const wfLabels = { research_dev:'📡 R&D', feature:'🏗️ Feature', bugfix:'🐛 Bugfix', security_review:'🛡️ Security', quick:'⚡ Quick' };
     const topic = document.getElementById('channel-topic');
     const orig = topic.textContent;
-    topic.textContent = `✅ Task "${title}" created!`;
-    setTimeout(() => { topic.textContent = orig; }, 3000);
+    topic.textContent = `✅ Auto-routed "${title}" → ${wfLabels[wf] || wf} pipeline`;
+    setTimeout(() => { topic.textContent = orig; }, 4000);
   } catch (err) {
     document.getElementById('task-modal-error').textContent = `Failed: ${err.message}`;
     document.getElementById('task-modal-error').style.display = 'block';

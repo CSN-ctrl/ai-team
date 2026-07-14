@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from app.activity import emit as activity_emit
 from app.kanban.board import AsyncKanbanBoard
 from app.models.task import Task, TaskStatus
+from app.workflows.classifier import classify_workflow, describe_workflow
 
 router = APIRouter(prefix="/v1")
 
@@ -40,8 +41,14 @@ async def list_tasks(
 
 @router.post("/tasks")
 async def create_task(body: CreateTaskRequest, request: Request) -> dict:
-    """Create a new task."""
+    """Create a new task. Auto-routes to the best workflow pipeline."""
     board: AsyncKanbanBoard = request.app.state.board
+
+    # Auto-classify workflow if not explicitly provided
+    wf_type = body.workflow_type
+    if not wf_type:
+        wf_type = classify_workflow(body.title, body.description)
+
     task = Task(
         id=uuid.uuid4().hex[:12],
         epic_id=body.epic_id or "",
@@ -49,12 +56,12 @@ async def create_task(body: CreateTaskRequest, request: Request) -> dict:
         description=body.description,
         status=TaskStatus.BACKLOG,
         priority=body.priority,
-        workflow_type=body.workflow_type,
+        workflow_type=wf_type,
         workflow_step=0,
     )
     created = await board.create_task(task)
     activity_emit("task_created", actor="user", task_id=created.id, task_title=created.title,
-                  detail=f"Task \"{created.title}\" created in backlog")
+                  detail=f"Task \"{created.title}\" created → {describe_workflow(wf_type)}")
     return created.dict()
 
 

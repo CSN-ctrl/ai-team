@@ -18,6 +18,7 @@ from app.agents.base import BaseAgent
 from app.kanban.board import AsyncKanbanBoard
 from app.models.task import Task, TaskStatus
 from app.workflows.engine import WorkflowEngine
+from app.workflows.classifier import classify_workflow, describe_workflow
 
 logger = logging.getLogger(__name__)
 
@@ -142,13 +143,15 @@ class AutoAssigner:
 
         for task in backlog + ready:
             if task.assignee:
-                continue  # already assigned
+                continue
+            # Auto-classify legacy tasks that have no workflow
             if not task.workflow_type:
-                continue  # no workflow — skip (legacy tasks)
-            # Check the task's current step to determine if it needs assigning
+                wf = classify_workflow(task.title, task.description)
+                await self._board.update_task(task.id, {"workflow_type": wf})
+                task.workflow_type = wf
+                logger.info("Auto-routed task %s → %s", task.id, wf)
             step = self._workflows.get_current_step(task)
             if step is None:
-                # Task has a workflow but is past the last step, or invalid
                 continue
             candidates.append(task)
 
