@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from enum import Enum
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 
 class TaskStatus(str, Enum):
@@ -30,6 +30,10 @@ class Task(BaseModel):
     dependencies: list[str] = []
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    # ── Multi-agent pipeline fields ───────────────────────────────────
+    workflow_type: Optional[str] = None  # "research_dev", "feature", etc.
+    workflow_step: int = 0  # current step index in the pipeline
+    workflow_output: str = ""  # accumulated context/output from previous steps
 
 
 class Epic(BaseModel):

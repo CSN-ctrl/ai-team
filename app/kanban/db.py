@@ -103,6 +103,9 @@ def _row_to_task(row: aiosqlite.Row) -> Task:
         dependencies=_deserialize_list(row["dependencies"]),
         created_at=_ts(row["created_at"]),
         updated_at=_ts(row["updated_at"]),
+        workflow_type=row["workflow_type"] if row["workflow_type"] else None,
+        workflow_step=row["workflow_step"] if row["workflow_step"] is not None else 0,
+        workflow_output=row["workflow_output"] or "",
     )
 
 
@@ -164,6 +167,9 @@ CREATE TABLE IF NOT EXISTS tasks (
     priority INTEGER NOT NULL DEFAULT 0,
     acceptance_criteria TEXT DEFAULT '[]',
     dependencies TEXT DEFAULT '[]',
+    workflow_type TEXT,
+    workflow_step INTEGER NOT NULL DEFAULT 0,
+    workflow_output TEXT DEFAULT '',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
 );
@@ -216,6 +222,12 @@ class DatabaseManager:
         self._conn.row_factory = aiosqlite.Row
         await self._conn.execute("PRAGMA journal_mode=WAL")
         await self._conn.executescript(SCHEMA_SQL)
+        # ── Migrations for columns added after v1 ─────────────────────
+        for col, col_def in [("workflow_type", "TEXT"), ("workflow_step", "INTEGER NOT NULL DEFAULT 0"), ("workflow_output", "TEXT DEFAULT ''")]:
+            try:
+                await self._conn.execute(f"ALTER TABLE tasks ADD COLUMN {col} {col_def}")
+            except aiosqlite.OperationalError:
+                pass  # column already exists
         await self._conn.commit()
 
     async def close(self) -> None:

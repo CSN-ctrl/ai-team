@@ -18,6 +18,7 @@ class CreateTaskRequest(BaseModel):
     title: str
     description: str = ""
     priority: int = 3
+    workflow_type: Optional[str] = None
 
 
 class AssignTaskRequest(BaseModel):
@@ -48,6 +49,8 @@ async def create_task(body: CreateTaskRequest, request: Request) -> dict:
         description=body.description,
         status=TaskStatus.BACKLOG,
         priority=body.priority,
+        workflow_type=body.workflow_type,
+        workflow_step=0,
     )
     created = await board.create_task(task)
     activity_emit("task_created", actor="user", task_id=created.id, task_title=created.title,
@@ -110,3 +113,19 @@ async def assign_task(body: AssignTaskRequest, request: Request) -> dict:
     activity_emit("task_assigned", actor=body.assignee, task_id=body.task_id, task_title=updated.title,
                   detail=f"Assigned to {body.assignee}")
     return updated.dict()
+
+
+@router.get("/workflows")
+async def list_workflows(request: Request) -> dict:
+    """Return all available workflow pipelines with their steps."""
+    engine = request.app.state.workflow_engine
+    workflows = {}
+    for wf_type, wf_def in engine._workflows.items():
+        workflows[wf_type] = {
+            "label": wf_def.label,
+            "steps": [
+                {"name": s.name, "agent_id": s.agent_id, "label": s.label, "description": s.description}
+                for s in wf_def.steps
+            ],
+        }
+    return {"workflows": workflows}

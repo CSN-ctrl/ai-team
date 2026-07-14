@@ -24,6 +24,7 @@ from app.llm.intent import IntentClassifier
 from app.models.mode import ConversationManager
 from app.router import ModelRouter
 from app.workers.auto_assigner import AutoAssigner
+from app.workflows import WorkflowEngine
 
 # ── Routers ────────────────────────────────────────────────────────────────
 
@@ -113,10 +114,15 @@ async def startup() -> None:
     app.state.agent_registry = agents
     app.state.ceo_agent = agents["ceo"]
 
+    # ── Workflow Engine ────────────────────────────────────────────────
+    workflow_engine = WorkflowEngine()
+    app.state.workflow_engine = workflow_engine
+
     # ── AutoAssigner ───────────────────────────────────────────────────
     assigner = AutoAssigner(
         board=board,
         agent_registry=agents,
+        workflow_engine=workflow_engine,
         poll_interval=5.0,
         max_assign_per_cycle=3,
     )
@@ -124,10 +130,11 @@ async def startup() -> None:
     app.state.auto_assigner = assigner
 
     logger.info(
-        "OpenClaw CEO started — board=%s, router.rpm=%d, agents=%d, assigner=enabled",
+        "OpenClaw CEO started — board=%s, router.rpm=%d, agents=%d, workflows=%d, assigner=enabled",
         db_path,
         cfg.nvidia_rpm_limit,
         len(agents),
+        len(workflow_engine.list_workflows()),
     )
 
 

@@ -144,6 +144,12 @@ html,body{height:100%;background:var(--bg-tertiary);color:var(--text-normal);fon
 .kanban-card-priority{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .kanban-card.assignee{display:flex;align-items:center;gap:4px}
 .kanban-card .assignee-dot{width:6px;height:6px;border-radius:50%;background:var(--brand)}
+/* Pipeline indicator */
+.pipeline-steps{display:flex;gap:3px;margin:6px 0 4px;align-items:center;flex-wrap:wrap}
+.pipeline-step{font-size:10px;padding:2px 6px;border-radius:4px;background:var(--bg-hover);color:var(--text-muted);white-space:nowrap}
+.pipeline-step.active{background:var(--brand);color:#fff}
+.pipeline-step.done{background:var(--status-green);color:#fff;opacity:.7}
+.pipeline-arrow{font-size:8px;color:var(--text-muted)}
 /* Approvals */
 .approval-list{display:flex;flex-direction:column;gap:8px}
 .approval-card{background:var(--bg-secondary);border-radius:8px;padding:16px;border-left:4px solid var(--yellow-300)}
@@ -313,11 +319,19 @@ html,body{height:100%;background:var(--bg-tertiary);color:var(--text-normal);fon
         <input type="text" id="task-title" placeholder="What needs to be done?" autofocus>
       </div>
       <div class="modal-field">
+        <label>Workflow Pipeline</label>
+        <select id="task-workflow">
+          <option value="research_dev">📡 R&D Pipeline (Hermes → Dev → QA → Review → CEO)</option>
+          <option value="feature">🏗️ Feature Pipeline (Plan → Code → Debug → QA → Security → Review → CEO)</option>
+          <option value="bugfix">🐛 Bugfix Pipeline (Diagnose → Fix → Verify → Review)</option>
+          <option value="security_review">🛡️ Security Pipeline (Audit → Remediate → Re-audit → Review)</option>
+          <option value="quick">⚡ Quick Pipeline (Implement → Review)</option>
+        </select>
+      </div>
+      <div class="modal-field">
         <label>Description</label>
         <textarea id="task-desc" placeholder="Describe the task in detail..."></textarea>
       </div>
-      <div class="modal-field">
-        <label>Priority</label>
         <select id="task-priority">
           <option value="1">🔴 Critical (P1)</option>
           <option value="2" selected>🟡 High (P2)</option>
@@ -489,6 +503,36 @@ const STATUS_LABELS = { backlog:'Backlog', ready:'Ready', planning:'Planning', i
   review:'Review', qa:'QA', security:'Security', approval:'Approval', release:'Release', done:'Done', cancelled:'Cancelled' };
 const PRIORITY_COLORS = { 1:'#f23f42', 2:'#f0b232', 3:'#23a55a', 4:'#949ba4', 5:'#949ba4' };
 
+// Pipeline stage labels for visualization (maps workflow step name → label)
+const PIPELINE_LABELS = {
+  research:'🔍', development:'💻', qa:'🧪', security:'🛡️', final_review:'✅', evaluation:'👑',
+  planning:'📐', coding:'⚡', debugging:'🔧', audit:'🔍', remediate:'🔧',
+};
+
+function renderPipelineIndicator(task) {
+  const wf = task.workflow_type;
+  const step = task.workflow_step || 0;
+  // Short labels per workflow type
+  const wfSteps = {
+    research_dev:['🔍','💻','🧪','✅','👑'],
+    feature:['📐','⚡','🔧','🧪','🛡️','✅','👑'],
+    bugfix:['🔍','🔧','🧪','✅'],
+    security_review:['🛡️','🔧','🛡️','✅'],
+    quick:['⚡','✅'],
+  };
+  const steps = wfSteps[wf] || [];
+  if (!steps.length) return '';
+
+  let html = '<div class="pipeline-steps">';
+  for (let i = 0; i < steps.length; i++) {
+    const cls = i < step ? 'done' : (i === step ? 'active' : '');
+    html += `<span class="pipeline-step ${cls}">${steps[i]}</span>`;
+    if (i < steps.length - 1) html += `<span class="pipeline-arrow">›</span>`;
+  }
+  html += '</div>';
+  return html;
+}
+
 function renderKanban(tasks) {
   const cols = {};
   for (const s of STATUS_ORDER) cols[s] = [];
@@ -512,6 +556,7 @@ function renderKanban(tasks) {
       const pri = t.priority || 3;
       html += `<div class="kanban-card">
         <div class="kanban-card-title">${t.title || 'Untitled'}</div>
+        ${t.workflow_type ? renderPipelineIndicator(t) : ''}
         <div class="kanban-card-meta">
           <span class="kanban-card-priority" style="background:${PRIORITY_COLORS[pri] || '#949ba4'}"></span>
           ${t.assignee ? `<span class="assignee"><span class="assignee-dot"></span>${t.assignee}</span>` : ''}
@@ -893,7 +938,7 @@ async function submitTask() {
   const title = document.getElementById('task-title').value.trim();
   const desc = document.getElementById('task-desc').value.trim();
   const priority = parseInt(document.getElementById('task-priority').value);
-  const taskType = document.getElementById('task-type').value;
+  const workflowType = document.getElementById('task-workflow').value;
 
   if (!title) {
     document.getElementById('task-modal-error').style.display = 'block';
@@ -907,7 +952,7 @@ async function submitTask() {
   modalBtn.textContent = 'Creating...';
 
   try {
-    const body = { title, description: desc, priority };
+    const body = { title, description: desc, priority, workflow_type: workflowType };
     const res = await fetch('/v1/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

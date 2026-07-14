@@ -1,9 +1,10 @@
-"""Auto-assignment worker — polls kanban, assigns backlog tasks to idle agents.
+"""Auto-assignment worker — polls kanban, runs tasks through team pipelines.
 
-Runs as an asyncio background task inside the CEO FastAPI process.
-Scans for unassigned ``backlog`` and ``ready`` tasks every N seconds,
-matches them to idle agents by capability, advances their status,
-and monitors completion through the kanban state machine.
+Each task follows a multi-agent *workflow* (R&D pipeline, feature pipeline,
+bugfix pipeline, etc.). The assigner scans for tasks that have a workflow
+defined, assigns each step to the right specialist agent, and when a step
+completes it advances the task to the next stage. This is how the whole
+team collaborates like a real dev team.
 """
 
 from __future__ import annotations
@@ -16,37 +17,9 @@ from app.activity import emit as activity_emit
 from app.agents.base import BaseAgent
 from app.kanban.board import AsyncKanbanBoard
 from app.models.task import Task, TaskStatus
+from app.workflows.engine import WorkflowEngine
 
 logger = logging.getLogger(__name__)
-
-# ── Capability mapping: task type → agent capability ────────────────────
-# The CEO agent outputs tasks with a "type" field (coding, architecture,
-# qa, security, planning).  We map those to agent capabilities.
-_TASK_TYPE_TO_CAPABILITY: dict[str, str] = {
-    "coding": "coding",
-    "architecture": "planning",
-    "qa": "qa",
-    "security": "security",
-    "planning": "planning",
-    "debugging": "debugging",
-    "refactoring": "refactoring",
-    "final_review": "final_review",
-    "research": "research",
-    "development": "development",
-}
-
-# Agent capability → which agents can handle it
-_CAPABILITY_TO_AGENTS: dict[str, list[str]] = {
-    "planning": ["ceo", "planner"],
-    "coding": ["eng-a", "eng-b"],
-    "debugging": ["dbg"],
-    "qa": ["qa"],
-    "security": ["sec"],
-    "final_review": ["rev"],
-    "refactoring": ["eng-a", "eng-b"],
-    "research": ["hermes"],
-    "development": ["dev-exp"],
-}
 
 
 class AutoAssigner:
@@ -60,11 +33,13 @@ class AutoAssigner:
         self,
         board: AsyncKanbanBoard,
         agent_registry: dict[str, BaseAgent],
+        workflow_engine: WorkflowEngine,
         poll_interval: float = 5.0,
         max_assign_per_cycle: int = 3,
     ) -> None:
         self._board = board
         self._agents = agent_registry
+        self._workflows = workflow_engine
         self._poll_interval = poll_interval
         self._max_per_cycle = max_assign_per_cycle
         self._task: Optional[asyncio.Task[None]] = None
@@ -160,10 +135,23 @@ class AutoAssigner:
     # ── Candidate search ─────────────────────────────────────────────────
 
     async def _find_candidates(self) -> list[Task]:
-        """Return backlog or ready tasks that are unassigned."""
+        """Return tasks that are ready for their next workflow step."""
         backlog = await self._board.list_tasks(status="backlog")
         ready = await self._board.list_tasks(status="ready")
-        candidates = [t for t in backlog + ready if not t.assignee]
+        candidates = []
+
+        for task in backlog + ready:
+            if task.assignee:
+                continue  # already assigned
+            if not task.workflow_type:
+                continue  # no workflow — skip (legacy tasks)
+            # Check the task's current step to determine if it needs assigning
+            step = self._workflows.get_current_step(task)
+            if step is None:
+                # Task has a workflow but is past the last step, or invalid
+                continue
+            candidates.append(task)
+
         # Sort by priority (lower number = higher priority)
         candidates.sort(key=lambda t: t.priority if t.priority else 3)
         return candidates
@@ -179,19 +167,13 @@ class AutoAssigner:
         return idle
 
     def _pick_agent(self, task: Task, idle_agents: set[str]) -> Optional[str]:
-        """Pick the best idle agent for *task*.
-
-        Attempts capability matching first; falls back to any idle agent.
-        """
-        # Try capability-based routing
-        task_type = self._infer_task_type(task)
-        capability = _TASK_TYPE_TO_CAPABILITY.get(task_type)
-        if capability:
-            preferred = _CAPABILITY_TO_AGENTS.get(capability, [])
-            for aid in preferred:
-                if aid in idle_agents:
-                    return aid
-
+        """Pick the best idle agent for *task* based on its workflow step."""
+        step = self._workflows.get_current_step(task)
+        if step is None:
+            return None
+        # The workflow explicitly defines which agent handles this step
+        if step.agent_id in idle_agents:
+            return step.agent_id
         # Fallback: any idle agent
         if idle_agents:
             return next(iter(idle_agents))
@@ -223,48 +205,80 @@ class AutoAssigner:
         if isinstance(current, TaskStatus):
             current = current.value
 
-        # Walk through valid transitions: backlog → ready → planning
+        step = self._workflows.get_current_step(task)
+        step_label = step.label if step else "work"
+
         if current == "backlog":
             await self._board.update_task(task.id, {"assignee": agent_id, "status": "ready"})
-            await self._board.update_task(task.id, {"status": "planning"})
+            await self._board.update_task(task.id, {"status": "in_progress"})
             activity_emit("task_assigned", actor=agent_id, task_id=task.id, task_title=task.title,
-                          detail=f"Assigned {agent_id} (backlog→planning)")
+                          detail=f"{step_label} → {agent_id} (backlog→in_progress)")
             activity_emit("task_status", actor="assigner", task_id=task.id, task_title=task.title,
-                          from_status="backlog", to_status="planning",
-                          detail=f"Auto-progressed to planning for {agent_id}")
+                          from_status="backlog", to_status="in_progress",
+                          detail=f"Step {step_label} started by {agent_id}")
         elif current == "ready":
-            await self._board.update_task(task.id, {"assignee": agent_id, "status": "planning"})
+            await self._board.update_task(task.id, {"assignee": agent_id, "status": "in_progress"})
             activity_emit("task_assigned", actor=agent_id, task_id=task.id, task_title=task.title,
-                          detail=f"Assigned {agent_id} (ready→planning)")
-            activity_emit("task_status", actor="assigner", task_id=task.id, task_title=task.title,
-                          from_status="ready", to_status="planning",
-                          detail=f"Auto-progressed to planning for {agent_id}")
+                          detail=f"{step_label} → {agent_id} (ready→in_progress)")
         else:
             await self._board.update_task(task.id, {"assignee": agent_id})
             activity_emit("task_assigned", actor=agent_id, task_id=task.id, task_title=task.title,
-                          detail=f"Assigned {agent_id}")
+                          detail=f"{step_label} → {agent_id}")
 
         self._busy_agents[agent_id] = task.id
         activity_emit("agent_busy", actor=agent_id, task_id=task.id, task_title=task.title,
-                      detail=f"{agent_id} started working on {task.title}")
+                      detail=f"{agent_id} working on {task.title} ({step_label})")
 
     # ── Completion monitoring ────────────────────────────────────────────
 
     async def sweep_completed(self) -> list[Task]:
         done_tasks = await self._board.list_tasks(status="done")
+        in_progress = await self._board.list_tasks(status="in_progress")
         released: list[Task] = []
+
+        # Release agents from done tasks and advance pipeline
         for task in done_tasks:
             if task.assignee and task.assignee in self._busy_agents:
                 del self._busy_agents[task.assignee]
-                released.append(task)
                 activity_emit("agent_idle", actor=task.assignee, task_id=task.id, task_title=task.title,
-                              detail=f"{task.assignee} completed {task.title}")
+                              detail=f"{task.assignee} completed step on {task.title}")
 
+            # Advance to next workflow step if the pipeline continues
+            if task.workflow_type:
+                wf = self._workflows.get_workflow(task.workflow_type)
+                if wf and task.workflow_step < len(wf.steps) - 1:
+                    next_step = wf.steps[task.workflow_step + 1]
+                    # Recycle task to backlog with incremented step
+                    await self._board.update_task(task.id, {
+                        "workflow_step": task.workflow_step + 1,
+                        "assignee": None,
+                        "status": "backlog",
+                        "description": task.description + (
+                            f"\n\n--- Handoff from {task.assignee} ({next_step.name}) ---"
+                        ),
+                    })
+                    activity_emit("task_status", actor="assigner", task_id=task.id,
+                                  task_title=task.title,
+                                  from_status="done", to_status="backlog",
+                                  detail=f"Pipeline advanced: {task.assignee} → {next_step.agent_id} ({next_step.label})")
+                    released.append(task)
+                else:
+                    # Pipeline complete (or no workflow) — leave as done
+                    released.append(task)
+
+        # Also release agents from cancelled tasks
         cancelled = await self._board.list_tasks(status="cancelled")
         for task in cancelled:
             if task.assignee and task.assignee in self._busy_agents:
                 del self._busy_agents[task.assignee]
                 activity_emit("agent_idle", actor=task.assignee, task_id=task.id, task_title=task.title,
                               detail=f"{task.assignee} released from cancelled {task.title}")
+
+        # Also handle tasks that are in_progress but whose agent went idle (lost tasks)
+        for task in in_progress:
+            if task.assignee and task.assignee not in self._busy_agents:
+                # Agent might have been released by a previous sweep but task
+                # wasn't updated — re-assign will pick it up if still idle
+                pass
 
         return released

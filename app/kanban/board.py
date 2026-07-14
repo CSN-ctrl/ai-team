@@ -134,8 +134,8 @@ class AsyncKanbanBoard:
         await self._execute(
             "INSERT OR REPLACE INTO tasks "
             "(id, epic_id, title, description, status, assignee, priority, "
-            " acceptance_criteria, dependencies, created_at, updated_at) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            " acceptance_criteria, dependencies, workflow_type, workflow_step, workflow_output, created_at, updated_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 task.id,
                 task.epic_id,
@@ -146,6 +146,9 @@ class AsyncKanbanBoard:
                 task.priority,
                 DatabaseManager.serialize(task.acceptance_criteria),
                 DatabaseManager.serialize(task.dependencies),
+                task.workflow_type,
+                task.workflow_step,
+                task.workflow_output,
                 _fmt(task.created_at),
                 _fmt(task.updated_at),
             ),
