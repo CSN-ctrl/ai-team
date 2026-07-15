@@ -49,7 +49,7 @@ class ModelError(Exception):
 # ---------------------------------------------------------------------------
 
 _DEFAULT_BASE_URL = "https://integrate.api.nvidia.com/v1"
-_DEFAULT_TIMEOUT_S: float = 120.0
+_DEFAULT_TIMEOUT_S: float = 25.0
 _DEFAULT_MAX_TOKENS: int = 4096
 _DEFAULT_TEMPERATURE: float = 0.7
 

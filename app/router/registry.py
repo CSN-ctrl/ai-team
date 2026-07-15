@@ -15,17 +15,17 @@ from typing import Optional
 # Using the user's API key against https://integrate.api.nvidia.com/v1
 
 ROUTING_TABLE: dict[str, dict[str, str | None]] = {
-    "planning":      {"primary": "z-ai/glm-5.2",                           "fallback": "qwen/qwen3-next-80b-a3b-instruct"},
-    "architecture":  {"primary": "z-ai/glm-5.2",                           "fallback": "deepseek-ai/deepseek-v4-flash"},
-    "coding":        {"primary": "qwen/qwen3-next-80b-a3b-instruct",        "fallback": "deepseek-ai/deepseek-v4-flash"},
-    "debugging":     {"primary": "qwen/qwen3.5-397b-a17b",                  "fallback": "z-ai/glm-5.2"},
-    "refactoring":   {"primary": "deepseek-ai/deepseek-v4-flash",           "fallback": "qwen/qwen3-next-80b-a3b-instruct"},
-    "qa":            {"primary": "nvidia/llama-3.3-nemotron-super-49b-v1",  "fallback": "qwen/qwen3-next-80b-a3b-instruct"},
-    "security":      {"primary": "nvidia/llama-3.3-nemotron-super-49b-v1",  "fallback": "z-ai/glm-5.2"},
-    "final_review":  {"primary": "nvidia/llama-3.1-nemotron-ultra-253b-v1", "fallback": "z-ai/glm-5.2"},
-    "vision":        {"primary": "minimaxai/minimax-m3",                    "fallback": None},
-    "research":      {"primary": "qwen/qwen3-next-80b-a3b-instruct",        "fallback": "deepseek-ai/deepseek-v4-flash"},
-    "development":   {"primary": "qwen/qwen3-next-80b-a3b-instruct",        "fallback": "deepseek-ai/deepseek-v4-flash"},
+    "planning":      {"primary": "nvidia/nemotron-3-ultra-550b-a55b",       "fallback": "nvidia/llama-3.3-nemotron-super-49b-v1"},
+    "architecture":  {"primary": "nvidia/nemotron-3-ultra-550b-a55b",       "fallback": "nvidia/llama-3.3-nemotron-super-49b-v1"},
+    "coding":        {"primary": "deepseek-ai/deepseek-v4-flash",           "fallback": "nvidia/llama-3.3-nemotron-super-49b-v1"},
+    "debugging":     {"primary": "nvidia/nemotron-3-ultra-550b-a55b",       "fallback": "deepseek-ai/deepseek-v4-flash"},
+    "refactoring":   {"primary": "deepseek-ai/deepseek-v4-flash",           "fallback": "nvidia/nemotron-3-ultra-550b-a55b"},
+    "qa":            {"primary": "nvidia/nemotron-3-ultra-550b-a55b",       "fallback": "nvidia/llama-3.3-nemotron-super-49b-v1"},
+    "security":      {"primary": "nvidia/nemotron-3-ultra-550b-a55b",       "fallback": "nvidia/llama-3.3-nemotron-super-49b-v1"},
+    "final_review":  {"primary": "nvidia/nemotron-3-ultra-550b-a55b",       "fallback": "nvidia/llama-3.3-nemotron-super-49b-v1"},
+    "vision":        {"primary": "minimaxai/minimax-m3",                    "fallback": "nvidia/nemotron-3-ultra-550b-a55b"},
+    "research":      {"primary": "nvidia/nemotron-3-ultra-550b-a55b",       "fallback": "nvidia/llama-3.3-nemotron-super-49b-v1"},
+    "development":   {"primary": "nvidia/nemotron-3-ultra-550b-a55b",       "fallback": "nvidia/llama-3.3-nemotron-super-49b-v1"},
 }
 
 # ---------------------------------------------------------------------------
@@ -33,40 +33,19 @@ ROUTING_TABLE: dict[str, dict[str, str | None]] = {
 # ---------------------------------------------------------------------------
 
 MODEL_META: dict[str, dict] = {
-    "glm-5.2": {
+    "nemotron-super": {
         "provider": "nvidia",
         "max_tokens": 131_072,
         "supports_tool_calling": True,
         "supports_streaming": True,
-        "description": "GLM-5.2 — strong planning & architecture reasoning",
-    },
-    "qwen3-coder": {
-        "provider": "nvidia",
-        "max_tokens": 131_072,
-        "supports_tool_calling": True,
-        "supports_streaming": True,
-        "description": "Qwen3-Coder — production coding & refactoring",
+        "description": "Llama-3.3-Nemotron-Super-49B — QA, security, planning",
     },
     "deepseek-v4-flash": {
         "provider": "nvidia",
         "max_tokens": 65_536,
         "supports_tool_calling": True,
         "supports_streaming": True,
-        "description": "DeepSeek-V4-Flash — fast refactoring & fallback coding",
-    },
-    "qwen3-thinking": {
-        "provider": "nvidia",
-        "max_tokens": 131_072,
-        "supports_tool_calling": True,
-        "supports_streaming": True,
-        "description": "Qwen3-Thinking — deep debugging & analysis",
-    },
-    "nemotron-super": {
-        "provider": "nvidia",
-        "max_tokens": 131_072,
-        "supports_tool_calling": True,
-        "supports_streaming": True,
-        "description": "Nemotron-Super — QA, security audits",
+        "description": "DeepSeek-V4-Flash — fast coding & refactoring",
     },
     "nemotron-ultra": {
         "provider": "nvidia",
@@ -80,7 +59,7 @@ MODEL_META: dict[str, dict] = {
         "max_tokens": 131_072,
         "supports_tool_calling": False,
         "supports_streaming": True,
-        "description": "MiniMax-Vision — image understanding",
+        "description": "MiniMax-M3 — image understanding",
     },
 }
 
