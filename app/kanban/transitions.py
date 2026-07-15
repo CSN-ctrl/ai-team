@@ -25,7 +25,7 @@ VALID_TRANSITIONS: Dict[str, List[str]] = {
     "approval": ["release", "in_progress"],    # in_progress ← rejected
     "release": ["done", "in_progress"],        # in_progress ← rollback
     # terminal
-    "done": [],
+    "done": ["backlog"],                         # backlog ← pipeline advances to next step
     "cancelled": [],
 }
 
